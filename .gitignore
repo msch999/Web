@@ -9,3 +9,6 @@
 .history/
 # local junk files
 junk/
+
+# is a git repo in itself
+bobbyroe-flythru-wireframe-wormhole/
