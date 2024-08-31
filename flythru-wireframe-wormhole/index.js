@@ -4,7 +4,6 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const width = window.innerWidth, height = window.innerHeight;
 
 // init
-var controls = undefined;
 
 const camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );
 camera.position.z = 1;
@@ -22,6 +21,7 @@ renderer.setSize( width, height );
 renderer.setAnimationLoop( animate );
 
 // ---------------- CAMERA CONTROLS ----------------
+var controls = undefined;
 controls = new OrbitControls( camera, renderer.domElement );
 
 document.body.appendChild( renderer.domElement );
