@@ -1,63 +1,38 @@
 import * as THREE from 'three';
-import {
-  OrbitControls
-} from 'three/examples/jsm/controls/OrbitControls';
-import Stats from 'three/examples/jsm/libs/stats.module';
-import {
-  GUI
-} from 'dat.gui'
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const width = window.innerWidth, height = window.innerHeight;
+
+// init
+var controls = undefined;
+
+const camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );
+camera.position.z = 1;
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 2;
+const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+const material = new THREE.MeshNormalMaterial();
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+const mesh = new THREE.Mesh( geometry, material );
+scene.add( mesh );
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true
+const renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setSize( width, height );
+renderer.setAnimationLoop( animate );
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({
-  color: 0x00ff00,
-  wireframe: true
-});
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+// ---------------- CAMERA CONTROLS ----------------
+controls = new OrbitControls( camera, renderer.domElement );
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  render();
-}, false);
+document.body.appendChild( renderer.domElement );
 
-const stats = Stats();
-document.body.appendChild(stats.dom);
+// animation
 
-const gui = new GUI();
+function animate( time ) {
 
-const cubeFolder = gui.addFolder("Cube");
-cubeFolder.add(cube.rotation, "x", 0, Math.PI * 2, 0.01);
-cubeFolder.add(cube.rotation, "y", 0, Math.PI * 2, 0.01);
-cubeFolder.add(cube.rotation, "z", 0, Math.PI * 2, 0.01);
-cubeFolder.open();
+	mesh.rotation.x = time / 2000;
+	mesh.rotation.y = time / 1000;
 
-const cameraFolder = gui.addFolder("Camera");
-cameraFolder.add(camera.position, "z", 0, 10, 0.01);
-cameraFolder.open();
+	renderer.render( scene, camera );
 
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  render();
-  stats.update();
 }
-
-function render() {
-  renderer.render(scene, camera);
-}
-
-animate();
