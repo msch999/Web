@@ -4,12 +4,13 @@ import { EffectComposer } from "jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "jsm/postprocessing/UnrealBloomPass.js";
 
-const w = window.innerWidth;
-const h = window.innerHeight;
+let w = window.innerWidth;
+let h = window.innerHeight;
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x000000, 0.3);
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.z = 5;
+scene.add(camera);
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(w, h);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -70,6 +71,23 @@ for (let i = 0; i < numBoxes; i += 1) {
   boxLines.rotation.set(rote.x, rote.y, rote.z);
   // scene.add(box);
   scene.add(boxLines);
+}
+
+let mousePos = new THREE.Vector2();
+const crosshairs = new THREE.Group();
+crosshairs.position.z = -1;
+camera.add(crosshairs);
+const crossMat = new THREE.LineBasicMaterial({
+  color: 0xffffff,
+});
+const lineGeo = new THREE.BufferGeometry();
+const lineVerts = [0, 0.05, 0, 0, 0.02, 0];
+lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(lineVerts, 3));
+
+for (let i = 0; i < 4; i++) {
+  const line = new THREE.Line(lineGeo, crossMat);
+  line.rotation.z = i * 0.5 * Math.PI;
+  crosshairs.add(line);
 }
 
 function updateCamera(t) {
