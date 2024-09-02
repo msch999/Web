@@ -21,11 +21,22 @@ scene.add(dirLight2);
 const ambientLight = new THREE.AmbientLight(0x555555);
 scene.add(ambientLight);
 
+// plane
+const geoPlane = new THREE.PlaneGeometry(5, 5);
+const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
+const plane = new THREE.Mesh(geoPlane, matPlane);
+plane.rotateX(- Math.PI / 2);
+plane.position.y = -1.0;
+scene.add(plane);
+
+// const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
+// gridHelper.position.y = -0.9;
+// scene.add(gridHelper);
 
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 //const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
 //const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-const material = new THREE.MeshNormalMaterial({wireframe: false, transparent: false, opacity: 0.35 });
+const material = new THREE.MeshNormalMaterial({ wireframe: false, transparent: false, opacity: 0.35 });
 
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
@@ -37,14 +48,8 @@ controls.update();
 
 let rotSwitch = true;
 
-function myOnPointerDownFunction() {
-	rotSwitch = false;
-	//console.log('myOnPointerDownFunction');
-}
-
 function animate() {
-	if (rotSwitch)
-	{
+	if (rotSwitch) {
 		cube.rotation.x -= 0.01;
 		cube.rotation.y += 0.01;
 	}
@@ -53,28 +58,24 @@ function animate() {
 }
 
 var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
-var targetMesh = cube;
+var pointer = new THREE.Vector2();
 
-function onMouseClick( event ) {
-	//console.log('Mouse clicked');
-	rotSwitch = !rotSwitch;
+function onPointerClick(event) {
 
-    raycaster.setFromCamera( mouse, camera );
-    var isIntersected;
-	isIntersected = raycaster.intersectObject( targetMesh );
-    if (isIntersected) {
-        console.log('isIntersected');
-    }	else	{
-        console.log('NOT isIntersected');
+	raycaster.setFromCamera(pointer, camera);
+
+	const intersects = raycaster.intersectObject(cube);
+	if (intersects.length > 0) {
+	  //console.log('INTERSECT');
+	  rotSwitch = !rotSwitch;
 	}
 }
 
 console.log('main-basic-cube-example.js');
 
-function onMouseMove( event ) {
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+function onPointerMove(event) {
+	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
 // function onMouseDown( event ) {
@@ -85,18 +86,18 @@ function onMouseMove( event ) {
 // 	console.log('up');
 // }
 
-window.addEventListener( 'mousedown', onMouseClick, false );
+window.addEventListener('mousedown', onPointerClick, false);
 //window.addEventListener( 'mousedown', onMouseDown, false );
-window.addEventListener( 'mousemove', onMouseMove, false );
+window.addEventListener('mousemove', onPointerMove, false);
 //window.addEventListener( 'mouseup', onMouseUp, false );
 
-window.addEventListener( 'resize', onWindowResize, false );
+window.addEventListener('resize', onWindowResize, false);
 
-function onWindowResize(){
+function onWindowResize() {
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
