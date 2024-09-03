@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>ZIM Frame - Fit Template</title>
+
+    <!-- Welcome to ZIM at https://zimjs.com - Code Creativity!                              -->
+    <!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
+    <!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner   -->
+    <!-- ZIM is free to use. You can donate to help improve ZIM at https://zimjs.com/donate  -->
+
+    <script src="https://d309knd7es5f10.cloudfront.net/createjs_1.1_min.js"></script>
+    <script src="https://d309knd7es5f10.cloudfront.net/zim_10.4.1.js"></script>
+    <!-- use zimjs.com/distill for minified individual functions! -->
+
+    <script>
+        // SCALING OPTIONS
+        // scaling can have values as follows with full being the default
+        // "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+        // "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+        // "full"	sets stage to window size with no scaling
+        // "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+        var scaling = "fit"; // this will resize to fit inside the screen dimensions
+        var width = 1920;
+        var height = 1080;
+        var color = dark; // ZIM colors like green, blue, pink, faint, clear, etc.
+        var outerColor = dark; // any HTML colors like "violet", "#333", etc. are fine to use
+
+        var frame = new Frame(scaling, width, height, color, outerColor);
+        frame.on("ready", function () {
+            zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+            var stage = frame.stage;
+            var stageW = frame.width;
+            var stageH = frame.height;
+
+            // see https://zimjs.com/learn.html for video and code tutorials
+            // see https://zimjs.com/docs.html for documentation
+            // see https://zimjs.com/bits.html for 64 Interactive Media techniques
+
+            // put your code here (you can delete this sample code)
+
+            var numCols = 9;
+
+            interval([2000, 2000], function () {  // bombs will fall at either 1000 or 2000 ms
+                //var xAbstand = rand(1, numCols);
+
+                var tile = new Tile({
+                    obj: new Label({
+                        text: "⭐",
+                        size: 35,
+                        align: "center"
+                    }),
+                    cols: numCols,
+                    spacingH: 15,
+                    width: stageW * .9
+                })
+                    .addTo()
+                    .pos(0, stageH / 2)
+                    .reg(10 + (50 * rand(1, numCols)), 7, true)
+                    .animate({
+                        obj: {
+                            alpha: 0.5,
+                            rotation: [-360, 360]
+                        },
+                        time: 2000,
+                        from: true,
+                        rewind: false,
+                        loop: false,
+                        call: function () {
+                            tile.removeFrom()
+                        }
+                    });
+            });
+
+            stage.update(); // this is needed to show any changes
+
+        }); // end of ready
+    </script>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+    <!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+
+</html>
