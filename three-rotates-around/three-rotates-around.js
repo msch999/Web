@@ -49,7 +49,7 @@ const geometry = new THREE.BoxGeometry(1, 1, 1);
 //const geometry = new THREE.BoxGeometry(1, 1, 1);
 //const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
 //const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-const material = new THREE.MeshNormalMaterial({ wireframe: false, transparent: false, opacity: 0.35 });
+const material = new THREE.MeshNormalMaterial({ wireframe: false, transparent: true, opacity: 0.8 });
 
 const cube = new THREE.Mesh(geometry, material);
 
