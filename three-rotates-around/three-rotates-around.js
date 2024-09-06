@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 const scene = new THREE.Scene();
 // scene.overrideMaterial = new THREE.MeshBasicMaterial({
@@ -39,9 +40,9 @@ scene.add(plane);
 // scene.add(gridHelper);
 
 //const geoSphere = new THREE.SphereGeometry( 1,8, 4 ); 
-const geoSphere = new THREE.OctahedronGeometry(1,1);
-const geoMat = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true});
-const sphere = new THREE.Mesh( geoSphere, geoMat);
+const geoSphere = new THREE.OctahedronGeometry(1, 1);
+const matSphere = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true, visible: true });
+const sphere = new THREE.Mesh(geoSphere, matSphere);
 scene.add(sphere);
 
 
@@ -61,19 +62,108 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
-//controls.update();
+const gui = new GUI();
+gui.add(document, 'title');
+gui.add(controls, 'enableDamping', true);
+//gui.add(material, 'opacity', 0, 1);
 
-let rotationSwitch = true;
+const cubefolder = gui.addFolder('the cube');
+
+const cubeParams = {
+	resetToDefault() { setDefaultCubeParams() },
+	rotationVelocity: 0.01,
+	rotationSwitch: true,
+	rotationXplus: true,
+	rotationX: true,
+	rotationYplus: true,
+	rotationY: true
+};
+
+cubefolder.add(cubeParams, 'resetToDefault');
+cubefolder.add(material, 'opacity', 0, 1).listen();
+cubefolder.add(cubeParams, 'rotationVelocity', 0, 1).listen();
+cubefolder.add(cubeParams, 'rotationSwitch').listen();  // .disable();
+cubefolder.add(cubeParams, 'rotationXplus').listen();
+cubefolder.add(cubeParams, 'rotationX').listen();
+cubefolder.add(cubeParams, 'rotationYplus').listen();
+cubefolder.add(cubeParams, 'rotationY').listen();
+
+function setDefaultCubeParams() {
+	cubeParams.rotationVelocity = 0.01;
+	cubeParams.rotationSwitch = true;
+	cubeParams.rotationXplus = true;
+	cubeParams.rotationX = true;
+	cubeParams.rotationYplus = true;
+	cubeParams.rotationY = true;
+	material.opacity = 0.8;
+}
+
+const spherefolder = gui.addFolder('the sphere');
+
+const sphereParams = {
+	resetToDefault() { setDefaultSphereParams() },
+	rotationVelocity: 0.01,
+	rotationSwitch: true,
+	rotationXplus: true,
+	rotationX: true,
+	rotationYplus: true,
+	rotationY: true
+};
+
+spherefolder.add(sphereParams, 'resetToDefault');
+spherefolder.add(matSphere, 'wireframe').listen();
+spherefolder.add(matSphere, 'visible').listen();
+spherefolder.add(sphereParams, 'rotationVelocity', 0, 1).listen();
+spherefolder.add(sphereParams, 'rotationSwitch').listen();
+spherefolder.add(sphereParams, 'rotationXplus').listen();
+spherefolder.add(sphereParams, 'rotationX').listen();
+spherefolder.add(sphereParams, 'rotationYplus').listen();
+spherefolder.add(sphereParams, 'rotationY').listen();
+
+function setDefaultSphereParams() {
+	sphereParams.rotationVelocity = 0.01;
+	sphereParams.rotationSwitch = true;
+	sphereParams.rotationXplus = true;
+	sphereParams.rotationX = true;
+	sphereParams.rotationYplus = true;
+	sphereParams.rotationY = true;
+
+	matSphere.wireframe = true;
+	matSphere.visible = true;
+}
 
 function animate() {
 
-	if (rotationSwitch) {
-		cube.rotation.x -= 0.01;
-		cube.rotation.y += 0.01;
+	if (cubeParams.rotationSwitch) {
+		if (cubeParams.rotationXplus) {
+			if (cubeParams.rotationX)
+				cube.rotation.x += cubeParams.rotationVelocity;
+		} else {
+			cube.rotation.x -= cubeParams.rotationVelocity;
+		}
 
-		sphere.rotation.x += 0.01;
-		sphere.rotation.y -= 0.01;
+		if (cubeParams.rotationYplus) {
+			if (cubeParams.rotationY)
+				cube.rotation.y += cubeParams.rotationVelocity;
+		} else {
+			cube.rotation.y -= cubeParams.rotationVelocity;
+		}
+	}
 
+	if (sphereParams.rotationSwitch) {
+		if (sphereParams.rotationXplus) {
+			if (sphereParams.rotationX)
+				sphere.rotation.x += sphereParams.rotationVelocity;
+		} else {
+			sphere.rotation.x -= sphereParams.rotationVelocity;
+		}
+
+		if (sphereParams.rotationYplus) {
+			if (sphereParams.rotationY)
+				sphere.rotation.y += sphereParams.rotationVelocity;
+		} else {
+			sphere.rotation.y -= sphereParams.rotationVelocity;
+		}
 	}
 
 	controls.update();
@@ -84,17 +174,22 @@ var raycaster = new THREE.Raycaster();
 var pointer = new THREE.Vector2();
 
 function onPointerClick(event) {
-
 	raycaster.setFromCamera(pointer, camera);
 
 	const intersects = raycaster.intersectObject(cube);
 	if (intersects.length > 0) {
-	  //console.log('INTERSECT');
-	  rotationSwitch = !rotationSwitch;
+		//console.log('INTERSECT');
+		cubeParams.rotationSwitch = !cubeParams.rotationSwitch;
+	}
+
+	const intersects2 = raycaster.intersectObject(sphere);
+	if (intersects2.length > 0) {
+		//console.log('INTERSECT');
+		sphereParams.rotationSwitch = !sphereParams.rotationSwitch;
 	}
 }
 
-console.log('three-rotates-around.js');
+// console.log('three-rotates-around.js');
 
 function onPointerMove(event) {
 	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
