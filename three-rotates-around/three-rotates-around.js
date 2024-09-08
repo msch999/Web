@@ -65,13 +65,13 @@ controls.dampingFactor = 0.03;
 const gui = new GUI();
 gui.add(document, 'title');
 gui.add(controls, 'enableDamping', true);
-//gui.add(material, 'opacity', 0, 1);
 
 const cubefolder = gui.addFolder('the cube');
 
 const cubeParams = {
 	resetToDefault() { setDefaultCubeParams() },
-	rotationVelocity: 0.01,
+	opacityChangeSwitch: true,
+	rotationVelocity: 0.003,
 	rotationSwitch: true,
 	rotationXplus: true,
 	rotationX: true,
@@ -81,6 +81,8 @@ const cubeParams = {
 
 cubefolder.add(cubeParams, 'resetToDefault');
 cubefolder.add(material, 'opacity', 0, 1).listen();
+cubefolder.add(cubeParams, 'opacityChangeSwitch').name('auto opacity').listen();
+
 cubefolder.add(cubeParams, 'rotationVelocity', 0, 1).listen();
 cubefolder.add(cubeParams, 'rotationSwitch').listen();  // .disable();
 cubefolder.add(cubeParams, 'rotationXplus').listen();
@@ -89,7 +91,8 @@ cubefolder.add(cubeParams, 'rotationYplus').listen();
 cubefolder.add(cubeParams, 'rotationY').listen();
 
 function setDefaultCubeParams() {
-	cubeParams.rotationVelocity = 0.01;
+	cubeParams.opacityChangeSwitch = true;
+	cubeParams.rotationVelocity = 0.003;
 	cubeParams.rotationSwitch = true;
 	cubeParams.rotationXplus = true;
 	cubeParams.rotationX = true;
@@ -102,7 +105,7 @@ const spherefolder = gui.addFolder('the sphere');
 
 const sphereParams = {
 	resetToDefault() { setDefaultSphereParams() },
-	rotationVelocity: 0.01,
+	rotationVelocity: 0.003,
 	rotationSwitch: true,
 	rotationXplus: true,
 	rotationX: true,
@@ -121,7 +124,7 @@ spherefolder.add(sphereParams, 'rotationYplus').listen();
 spherefolder.add(sphereParams, 'rotationY').listen();
 
 function setDefaultSphereParams() {
-	sphereParams.rotationVelocity = 0.01;
+	sphereParams.rotationVelocity = 0.003;
 	sphereParams.rotationSwitch = true;
 	sphereParams.rotationXplus = true;
 	sphereParams.rotationX = true;
@@ -165,6 +168,15 @@ function animate() {
 			sphere.rotation.y -= sphereParams.rotationVelocity;
 		}
 	}
+
+
+	if (cubeParams.opacityChangeSwitch)  {
+		// constantly change :  Math.sin(Date.now() * 0.001) * 2.5;
+		material.opacity = Math.sin(Date.now() * 0.001) * 2.5;
+	}
+
+	// if (material.opacity < 0)
+	// 	console.log('negative: ' + material.opacity);
 
 	controls.update();
 	renderer.render(scene, camera);
