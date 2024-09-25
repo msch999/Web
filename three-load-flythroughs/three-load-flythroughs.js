@@ -98,27 +98,33 @@ function rotate(object, deg, axis) {
 // } );
 
 // chat gpt suggestions
-// 3. Modell laden und mehrfach platzieren
-loader.load('flythroughs.001-T.glb', function (gltf) {
-	const model = gltf.scene;
-	const numModels = 5; // Anzahl der Modelle
+// 3. Modell laden und mehrfach platzieren mit async/await
+async function loadAndPlaceModels() {
+	try {
+		// Modell laden
+		const gltf = await loader.loadAsync('flythroughs.001-T.glb');
+		const model = gltf.scene;
+		const numModels = 5; // Anzahl der Modelle
 
-	for (let i = 0; i < numModels; i++) {
-		// Klonen des Modells
-		const modelClone = model.clone();
+		// Mehrfaches Platzieren des Modells
+		for (let i = 0; i < numModels; i++) {
+			// Klonen des Modells
+			const modelClone = model.clone();
 
-		// Positioniere die Modelle in einem Raster
-		const xOffset = (i % 3) * 2 - 2;  // Platzierung auf der X-Achse
-		const zOffset = Math.floor(i / 3) * 2 - 2;  // Platzierung auf der Z-Achse
+			// Positioniere die Modelle in einem Raster
+			const xOffset = (i % 3) * 2 - 2;  // Platzierung auf der X-Achse
+			const zOffset = Math.floor(i / 3) * 2 - 2;  // Platzierung auf der Z-Achse
 
-		modelClone.position.set(xOffset, 0, zOffset);
-		scene.add(modelClone);
+			modelClone.position.set(xOffset, 0, zOffset);
+			scene.add(modelClone);
+		}
+	} catch (error) {
+		console.error('Error loading GLTF model:', error);
 	}
+}
 
-}, undefined, function (error) {
-	console.error(error);
-});
-
+// Funktion aufrufen
+loadAndPlaceModels();
 //
 //deeplyClonedModels[1].position.x = 3;
 
