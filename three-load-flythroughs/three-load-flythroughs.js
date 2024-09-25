@@ -35,9 +35,9 @@ document.body.appendChild(renderer.domElement);
 // scene.add( directionalLight );
 
 
-const pointLight = new THREE.PointLight( 0xaaaaaa, 15, 10, 1.5 );   // color, intensity, distance, decay
-pointLight.position.set( 1, 1, 1 );
-scene.add( pointLight );
+const pointLight = new THREE.PointLight(0xaaaaaa, 15, 10, 1.5);   // color, intensity, distance, decay
+pointLight.position.set(1, 1, 1);
+scene.add(pointLight);
 
 //const sphereSize = 1;
 //const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
@@ -62,40 +62,73 @@ plane.rotateX(- Math.PI / 2);
 plane.position.y = -1.0;
 scene.add(plane);
 
-// const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
-// gridHelper.position.y = -0.9;
-// scene.add(gridHelper);
+const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
+gridHelper.position.y = -0.9;
+scene.add(gridHelper);
 
-camera.position.x = 0;
-camera.position.y = 2;
-camera.position.z = 4;
+camera.position.x = 3;
+camera.position.y = 3;
+camera.position.z = 6;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
-// model
+THREE.Cache.enabled = true;
+var loader = new GLTFLoader().setPath('public/');
+var deeplyClonedModels = [];
 
-const loader = new GLTFLoader().setPath( 'public/' );
-loader.load( 'flythroughs.001-T.glb', async function ( gltf ) {
+// rotation helper
+// https://stackoverflow.com/questions/29907536/how-can-i-rotate-a-mesh-by-90-degrees-in-threejs
+function rotate(object, deg, axis) {
+	// axis is a THREE.Vector3
+	var q = new THREE.Quaternion();
+	q.setFromAxisAngle(axis, THREE.MathUtils.degToRad(deg)); // we need to use radians
+	q.normalize();
+	object.quaternion.multiply(q);
+}
 
-	const modelT = gltf.scene;
-	// wait until the model can be added to the scene without blocking due to shader compilation
+// loader.load( 'flythroughs.001-T.glb', async function ( gltf ) {
 
-	await renderer.compileAsync( modelT, camera, scene );
-	scene.add( modelT );
-} );
+// 	const modelT = gltf.scene;
+// 	// wait until the model can be added to the scene without blocking due to shader compilation
 
-loader.load( 'flythroughs.001-I.glb', async function ( gltf ) {
+// 	await renderer.compileAsync( modelT, camera, scene );
+// 	scene.add( modelT );
+// } );
+for (var i = 0; i < 3; i++) {
+	loader.load('flythroughs.001-T.glb', async function (gltf) {
+		var currentT = gltf.scene;
+		var index = 0;
+		// wait until the model can be added to the scene without blocking due to shader compilation
+		await renderer.compileAsync(currentT, camera, scene);
 
-	const modelI = gltf.scene;
-	// wait until the model can be added to the scene without blocking due to shader compilation
+		var count = deeplyClonedModels.push(currentT);
+		console.log('Count: ' + count + ' i: ' + i);
+		var xPos = 2;
+		var zPos = -2;
+		var yRot = 360;
+		
+		deeplyClonedModels[count - 1].position.x = xPos;
+		deeplyClonedModels[count - 1].position.z = zPos
+		// deeplyClonedModels[count - 1].rotation.y = yRot;
+		//rotate( currentT, yRot, new THREE.Vector3( 0, 1, 0 ));
+		scene.add(currentT);
+	});
+}
 
-	await renderer.compileAsync( modelI, camera, scene );
-	scene.add( modelI );
-} );
+//
+//deeplyClonedModels[1].position.x = 3;
 
 
+// loader.load('flythroughs.001-I.glb', async function (gltf) {
+
+// 	const modelI = gltf.scene;
+// 	// wait until the model can be added to the scene without blocking due to shader compilation
+
+// 	await renderer.compileAsync(modelI, camera, scene);
+// 	scene.add(modelI);
+// });
 
 function animate() {
 	controls.update();
