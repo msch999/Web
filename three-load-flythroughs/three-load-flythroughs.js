@@ -99,44 +99,81 @@ function rotate(object, deg, axis) {
 
 // chat gpt suggestions
 // 3. Modell laden und mehrfach platzieren mit async/await
+// Funktion zum Laden und Platzieren beider Modelle
 async function loadAndPlaceModels() {
 	try {
-		// Modell laden
-		const gltf = await loader.loadAsync('flythroughs.001-T.glb');
-		const model = gltf.scene;
-		const numModels = 5; // Anzahl der Modelle
+		// 1. Lade beide GLTF-Modelle asynchron
+		const [gltf1, gltf2] = await Promise.all([
+			loader.loadAsync('flythroughs.001-T.glb'),
+			loader.loadAsync('flythroughs.001-I.glb')
+		]);
 
-		// Mehrfaches Platzieren des Modells
-		for (let i = 0; i < numModels; i++) {
-			// Klonen des Modells
-			const modelClone = model.clone();
+		const modelT = gltf1.scene;
+		const modelI = gltf2.scene;
+		const placementMap = [
+			[-5, 0, 5],    // x,y,z
+			[-5, 0, 3],
+			[-5, 0, 1]
+		];
 
-			// Positioniere die Modelle in einem Raster
-			const xOffset = (i % 3) * 2 - 2;  // Platzierung auf der X-Achse
-			const zOffset = Math.floor(i / 3) * 2 - 2;  // Platzierung auf der Z-Achse
 
-			modelClone.position.set(xOffset, 0, zOffset);
-			scene.add(modelClone);
+		for (let i = 0; i < placementMap.length; i++) {
+			var modelClone = modelI.clone();
+
+			console.log('i: ' + i + ', ' + placementMap[i][0] + ' ' + placementMap[i][1] + ' ' + placementMap[i][2]);
+
+			modelClone.position.set(
+				placementMap[i][0],
+				placementMap[i][1],
+				placementMap[i][2]
+			);
 		}
+
+		// // 2. Platzieren der flythroughs.001-I.glb)
+		// for (let i = 0; i < numModels; i++) {
+		// 	const modelClone = modelI.clone();
+
+
+		// 	if (i == 0)			{
+		// 		modelClone.position.set(-5, 0, 5);
+		// 	}
+		// 	if (i == 1)			{
+		// 		modelClone.position.set(-5, 0, 3);
+		// 	}
+		// 	if (i == 2)			{
+		// 		modelClone.position.set(-5, 0, 1);
+		// 	}
+
+		scene.add(modelClone);
+
+		// Versetze die Platzierung der zweiten Gruppe etwas zur Seite
+		// const xOffset = (i % 3) * 5 + 10;
+		// const xOffset = (i % 3) * 5 + 0;
+		// const zOffset = Math.floor(i / 3) * 5 - 5;
+
+		// modelClone.position.set(xOffset, 0, zOffset);
+		// scene.add(modelClone);
+		// }
+
+		// // 3. Platzieren der ersten Modellgruppe (flythroughs.001-T.glb)
+		// for (let i = 0; i < numModels; i++) {
+		// 	const modelClone = modelT.clone();
+
+		// 	// Positionierung in einem Raster auf der X-Z-Achse
+		// 	const xOffset = (i % 3) * 5 - 10;
+		// 	const zOffset = Math.floor(i / 3) * 5 - 5;
+
+		// 	modelClone.position.set(xOffset, 0, zOffset);
+		// 	scene.add(modelClone);
+		// }
+
 	} catch (error) {
-		console.error('Error loading GLTF model:', error);
+		console.error('Error loading GLTF models:', error);
 	}
 }
 
 // Funktion aufrufen
 loadAndPlaceModels();
-//
-//deeplyClonedModels[1].position.x = 3;
-
-
-// loader.load('flythroughs.001-I.glb', async function (gltf) {
-
-// 	const modelI = gltf.scene;
-// 	// wait until the model can be added to the scene without blocking due to shader compilation
-
-// 	await renderer.compileAsync(modelI, camera, scene);
-// 	scene.add(modelI);
-// });
 
 function animate() {
 	controls.update();
