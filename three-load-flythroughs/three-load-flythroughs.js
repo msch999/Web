@@ -76,7 +76,7 @@ controls.dampingFactor = 0.03;
 
 THREE.Cache.enabled = true;
 var loader = new GLTFLoader().setPath('public/');
-var deeplyClonedModels = [];
+//var deeplyClonedModels = [];
 
 // rotation helper
 // https://stackoverflow.com/questions/29907536/how-can-i-rotate-a-mesh-by-90-degrees-in-threejs
@@ -96,26 +96,28 @@ function rotate(object, deg, axis) {
 // 	await renderer.compileAsync( modelT, camera, scene );
 // 	scene.add( modelT );
 // } );
-for (var i = 0; i < 3; i++) {
-	loader.load('flythroughs.001-T.glb', async function (gltf) {
-		var currentT = gltf.scene;
-		var index = 0;
-		// wait until the model can be added to the scene without blocking due to shader compilation
-		await renderer.compileAsync(currentT, camera, scene);
 
-		var count = deeplyClonedModels.push(currentT);
-		console.log('Count: ' + count + ' i: ' + i);
-		var xPos = 2;
-		var zPos = -2;
-		var yRot = 360;
-		
-		deeplyClonedModels[count - 1].position.x = xPos;
-		deeplyClonedModels[count - 1].position.z = zPos
-		// deeplyClonedModels[count - 1].rotation.y = yRot;
-		//rotate( currentT, yRot, new THREE.Vector3( 0, 1, 0 ));
-		scene.add(currentT);
-	});
-}
+// chat gpt suggestions
+// 3. Modell laden und mehrfach platzieren
+loader.load('flythroughs.001-T.glb', function (gltf) {
+	const model = gltf.scene;
+	const numModels = 5; // Anzahl der Modelle
+
+	for (let i = 0; i < numModels; i++) {
+		// Klonen des Modells
+		const modelClone = model.clone();
+
+		// Positioniere die Modelle in einem Raster
+		const xOffset = (i % 3) * 2 - 2;  // Platzierung auf der X-Achse
+		const zOffset = Math.floor(i / 3) * 2 - 2;  // Platzierung auf der Z-Achse
+
+		modelClone.position.set(xOffset, 0, zOffset);
+		scene.add(modelClone);
+	}
+
+}, undefined, function (error) {
+	console.error(error);
+});
 
 //
 //deeplyClonedModels[1].position.x = 3;
