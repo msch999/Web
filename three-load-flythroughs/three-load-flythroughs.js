@@ -36,7 +36,7 @@ document.body.appendChild(renderer.domElement);
 
 
 const pointLight = new THREE.PointLight(0xaaaaaa, 15, 10, 1.5);   // color, intensity, distance, decay
-pointLight.position.set(1, 1, 1);
+pointLight.position.set(2, 3, -3);
 scene.add(pointLight);
 
 //const sphereSize = 1;
@@ -66,20 +66,41 @@ const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
 gridHelper.position.y = -0.9;
 scene.add(gridHelper);
 
-camera.position.x = 3;
-camera.position.y = 3;
-camera.position.z = 6;
+// Kamera-Position initialisieren
+camera.position.set(0, 2, 10);
+//camera.position.set(10, 4.8, 4.8);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
+// #######################################################################
+const gui = new GUI();
+
+gui.add(document, 'title');
+gui.add(controls, 'enableDamping', true);
+const cameraFolder = gui.addFolder('Kamera Position');
+const cameraPosition = {
+	x: camera.position.x,
+	y: camera.position.y,
+	z: camera.position.z
+};
+
+// GUI-Elemente für Kameraposition
+const xControl = cameraFolder.add(cameraPosition, 'x', -10, 10).onChange(value => camera.position.x = value);
+const yControl = cameraFolder.add(cameraPosition, 'y', -10, 10).onChange(value => camera.position.y = value);
+const zControl = cameraFolder.add(cameraPosition, 'z', -10, 10).onChange(value => camera.position.z = value);
+
+cameraFolder.open();
+
+// #######################################################################
+
 THREE.Cache.enabled = true;
 var loader = new GLTFLoader().setPath('public/');
-//var deeplyClonedModels = [];
 
 // rotation helper
 // https://stackoverflow.com/questions/29907536/how-can-i-rotate-a-mesh-by-90-degrees-in-threejs
+// e.g. rotate( myMesh, 90, new THREE.Vector3( 0, 0, 1 ) );
 function rotate(object, deg, axis) {
 	// axis is a THREE.Vector3
 	var q = new THREE.Quaternion();
@@ -88,85 +109,74 @@ function rotate(object, deg, axis) {
 	object.quaternion.multiply(q);
 }
 
-// loader.load( 'flythroughs.001-T.glb', async function ( gltf ) {
-
-// 	const modelT = gltf.scene;
-// 	// wait until the model can be added to the scene without blocking due to shader compilation
-
-// 	await renderer.compileAsync( modelT, camera, scene );
-// 	scene.add( modelT );
-// } );
-
-// chat gpt suggestions
-// 3. Modell laden und mehrfach platzieren mit async/await
+// based on chat gpt suggestions
+// Modell laden und mehrfach platzieren mit async/await
 // Funktion zum Laden und Platzieren beider Modelle
 async function loadAndPlaceModels() {
 	try {
 		// 1. Lade beide GLTF-Modelle asynchron
-		const [gltf1, gltf2] = await Promise.all([
-			loader.loadAsync('flythroughs.001-T.glb'),
-			loader.loadAsync('flythroughs.001-I.glb')
+		const [gltf1, gltf2, gltf3] = await Promise.all([
+			loader.loadAsync('flythroughs.002.T.glb'),
+			loader.loadAsync('flythroughs.002.I.glb'),
+			loader.loadAsync('flythroughs.003.X.glb')
 		]);
 
 		const modelT = gltf1.scene;
 		const modelI = gltf2.scene;
+		const modelX = gltf3.scene;
+
 		const placementMap = [
-			[-5, 0, 5],    // x,y,z
-			[-5, 0, 3],
-			[-5, 0, 1]
+			//	 x, y, z, rotation, form 
+			[0, 0, 0, 0, 'I'],
+			[0, 0, -2, 0, 'I'],
+
+			[0, 0, -4, 0, 'X'],
+
+			[-2, 0, -4, 90, 'I'],
+			[2, 0, -4, 90, 'I'],
+
+			[0, 0, -6, 0, 'I'],
+			[0, 0, -8, 0, 'T'],
+
+			[-2, 0, -8, 90, 'I'],
+			[2, 0, -8, 90, 'I']
+
 		];
 
 
 		for (let i = 0; i < placementMap.length; i++) {
-			var modelClone = modelI.clone();
+			//	 x, y, z, rotation, form 
+			var curX = placementMap[i][0];
+			var curY = placementMap[i][1];
+			var curZ = placementMap[i][2];
+			var curR = placementMap[i][3];
+			var curF = placementMap[i][4];
 
-			console.log('i: ' + i + ', ' + placementMap[i][0] + ' ' + placementMap[i][1] + ' ' + placementMap[i][2]);
+			var modelClone;
 
-			modelClone.position.set(
-				placementMap[i][0],
-				placementMap[i][1],
-				placementMap[i][2]
-			);
+			switch (curF) {
+				case 'I':
+					modelClone = modelI.clone();
+					break;
+
+				case 'T':
+					modelClone = modelT.clone();
+					break;
+
+				case 'X':
+					modelClone = modelX.clone();
+					break;
+
+				default:
+					break;
+			}
+
+			rotate(modelClone, curR, new THREE.Vector3(0, 1, 0));
+			modelClone.position.set(curX, curY, curZ);
+
+			console.log('i: ' + i + ', ' + curX + ' ' + curY + ' ' + curZ + ' ' + curR + ' ' + curF);
+			scene.add(modelClone);
 		}
-
-		// // 2. Platzieren der flythroughs.001-I.glb)
-		// for (let i = 0; i < numModels; i++) {
-		// 	const modelClone = modelI.clone();
-
-
-		// 	if (i == 0)			{
-		// 		modelClone.position.set(-5, 0, 5);
-		// 	}
-		// 	if (i == 1)			{
-		// 		modelClone.position.set(-5, 0, 3);
-		// 	}
-		// 	if (i == 2)			{
-		// 		modelClone.position.set(-5, 0, 1);
-		// 	}
-
-		scene.add(modelClone);
-
-		// Versetze die Platzierung der zweiten Gruppe etwas zur Seite
-		// const xOffset = (i % 3) * 5 + 10;
-		// const xOffset = (i % 3) * 5 + 0;
-		// const zOffset = Math.floor(i / 3) * 5 - 5;
-
-		// modelClone.position.set(xOffset, 0, zOffset);
-		// scene.add(modelClone);
-		// }
-
-		// // 3. Platzieren der ersten Modellgruppe (flythroughs.001-T.glb)
-		// for (let i = 0; i < numModels; i++) {
-		// 	const modelClone = modelT.clone();
-
-		// 	// Positionierung in einem Raster auf der X-Z-Achse
-		// 	const xOffset = (i % 3) * 5 - 10;
-		// 	const zOffset = Math.floor(i / 3) * 5 - 5;
-
-		// 	modelClone.position.set(xOffset, 0, zOffset);
-		// 	scene.add(modelClone);
-		// }
-
 	} catch (error) {
 		console.error('Error loading GLTF models:', error);
 	}

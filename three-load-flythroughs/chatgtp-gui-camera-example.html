@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Camera Position with lil-gui</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.17/lil-gui.min.js"></script>
+
+    <script>
+        // 1. Szene, Kamera und Renderer erstellen
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Einfache Box zur Orientierung in der Szene
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Kamera-Position initialisieren
+        camera.position.set(0, 2, 5);
+
+        // 2. lil-gui einrichten
+        const gui = new GUI();
+        const cameraFolder = gui.addFolder('Kamera Position');
+        
+        // Kamera-Positionsdaten
+        const cameraPosition = {
+            x: camera.position.x,
+            y: camera.position.y,
+            z: camera.position.z
+        };
+
+        // GUI-Elemente für Kameraposition
+        const xControl = cameraFolder.add(cameraPosition, 'x', -10, 10).onChange(value => camera.position.x = value);
+        const yControl = cameraFolder.add(cameraPosition, 'y', -10, 10).onChange(value => camera.position.y = value);
+        const zControl = cameraFolder.add(cameraPosition, 'z', -10, 10).onChange(value => camera.position.z = value);
+
+        cameraFolder.open();
+
+        // 3. Animations-Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Cube rotieren lassen (zum Testen der Kamera)
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Funktion zum Anpassen der Kameraposition von außen
+        function updateCameraPosition(newX, newY, newZ) {
+            camera.position.set(newX, newY, newZ);
+
+            // Aktualisiere die GUI-Werte, damit die GUI mit den neuen Werten übereinstimmt
+            xControl.setValue(newX);
+            yControl.setValue(newY);
+            zControl.setValue(newZ);
+        }
+
+        // Beispiel: Ändere die Kameraposition nach 3 Sekunden
+        setTimeout(() => {
+            updateCameraPosition(2, 3, 8);
+        }, 3000);
+
+        // Resize-Event für Renderer anpassen
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
