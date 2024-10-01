@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+
+import { FlyControls } from 'three/addons/controls/FlyControls.js'
+
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
@@ -6,18 +9,18 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const scene = new THREE.Scene();
 // wireframe material toggle
-const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-document.addEventListener('keydown', function (event) {
-	// W Pressed: Toggle wireframe
-	if (event.keyCode === 87) {
-		if (scene.overrideMaterial != overrideMaterial) {
-			scene.overrideMaterial = overrideMaterial;
-		} else {
-			scene.overrideMaterial = null;
-		}
-		scene.material.needsUpdate = true;
-	}
-});
+// const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+// document.addEventListener('keydown', function (event) {
+// 	// W Pressed: Toggle wireframe
+// 	if (event.keyCode === 87) {
+// 		if (scene.overrideMaterial != overrideMaterial) {
+// 			scene.overrideMaterial = overrideMaterial;
+// 		} else {
+// 			scene.overrideMaterial = null;
+// 		}
+// 		scene.material.needsUpdate = true;
+// 	}
+// });
 // wireframe material toggle
 //scene.overrideMaterial = overrideMaterial;
 
@@ -69,15 +72,23 @@ scene.add(pointLight);
 // Kamera-Position initialisieren
 camera.position.set(0.6, 0.42, 3.86);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.03;
+ // Initiate FlyControls with various params
+ const controls = new FlyControls( camera, renderer.domElement );
+ controls.movementSpeed = 5;
+//  controls.rollSpeed = Math.PI / 24;
+ controls.rollSpeed = 1;
+ controls.autoForward = false;
+ controls.dragToLook = true;
+
+const controlsGui = new OrbitControls(camera, renderer.domElement);
+controlsGui.enableDamping = true;
+controlsGui.dampingFactor = 0.03;
 
 // #######################################################################
 const gui = new GUI();
 
 gui.add(document, 'title');
-gui.add(controls, 'enableDamping', true);
+gui.add(controlsGui, 'enableDamping', true);
 const cameraFolder = gui.addFolder('Kamera Position');
 const cameraPosition = {
 	x: camera.position.x,
@@ -260,7 +271,11 @@ async function loadAndPlaceModels() {
 loadAndPlaceModels();
 
 function animate() {
-	controls.update();
+
+	// update controls with a small step value to "power its engines"
+	controls.update(0.01)
+
+	controlsGui.update();
 	renderer.render(scene, camera);
 }
 
