@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { FlyControls } from 'three/addons/controls/FlyControls.js'
 
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+//import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -74,34 +74,34 @@ camera.position.set(0.6, 0.42, 3.86);
 
  // Initiate FlyControls with various params
  const controls = new FlyControls( camera, renderer.domElement );
- controls.movementSpeed = 5;
-//  controls.rollSpeed = Math.PI / 24;
- controls.rollSpeed = 1;
+ controls.movementSpeed = 4;
+ controls.rollSpeed = Math.PI / 24;
  controls.autoForward = false;
  controls.dragToLook = true;
+ controls.keys = {};
 
-const controlsGui = new OrbitControls(camera, renderer.domElement);
-controlsGui.enableDamping = true;
-controlsGui.dampingFactor = 0.03;
+// const controlsGui = new OrbitControls(camera, renderer.domElement);
+// controlsGui.enableDamping = true;
+// controlsGui.dampingFactor = 0.03;
 
 // #######################################################################
-const gui = new GUI();
+// const gui = new GUI();
 
-gui.add(document, 'title');
-gui.add(controlsGui, 'enableDamping', true);
-const cameraFolder = gui.addFolder('Kamera Position');
-const cameraPosition = {
-	x: camera.position.x,
-	y: camera.position.y,
-	z: camera.position.z
-};
+// gui.add(document, 'title');
+// gui.add(controlsGui, 'enableDamping', true);
+// const cameraFolder = gui.addFolder('Kamera Position');
+// const cameraPosition = {
+// 	x: camera.position.x,
+// 	y: camera.position.y,
+// 	z: camera.position.z
+// };
 
-// GUI-Elemente für Kameraposition
-const xControl = cameraFolder.add(cameraPosition, 'x', -10, 10).onChange(value => camera.position.x = value);
-const yControl = cameraFolder.add(cameraPosition, 'y', -10, 10).onChange(value => camera.position.y = value);
-const zControl = cameraFolder.add(cameraPosition, 'z', -10, 10).onChange(value => camera.position.z = value);
+// // GUI-Elemente für Kameraposition
+// const xControl = cameraFolder.add(cameraPosition, 'x', -10, 10).onChange(value => camera.position.x = value);
+// const yControl = cameraFolder.add(cameraPosition, 'y', -10, 10).onChange(value => camera.position.y = value);
+// const zControl = cameraFolder.add(cameraPosition, 'z', -10, 10).onChange(value => camera.position.z = value);
 
-cameraFolder.open();
+// cameraFolder.open();
 // #######################################################################
 
 THREE.Cache.enabled = true;
@@ -275,7 +275,7 @@ function animate() {
 	// update controls with a small step value to "power its engines"
 	controls.update(0.01)
 
-	controlsGui.update();
+	// controlsGui.update();
 	renderer.render(scene, camera);
 }
 
