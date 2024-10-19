@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>camera_along_path copy</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+  <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.1/examples/jsm/"
+        }
+      }
+  </script>
+</head>
+
+<body>
+  <script type="module"> 
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // https://gist.github.com/BarakChamo/9ed37256e29b78d28ff5176d6264746a
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    // camera.up = new THREE.Vector3(0, 0, 1);
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Lighting
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(-10, 0, 0).normalize();
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF); // soft white light
+    scene.add(ambientLight);
+
+    //
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    // plane
+    const geoPlane = new THREE.PlaneGeometry(5, 5);
+    const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
+    const plane = new THREE.Mesh(geoPlane, matPlane);
+    plane.rotateX(- Math.PI / 2);
+    plane.position.y = -1.0;
+    scene.add(plane);
+
+    // const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
+    // gridHelper.position.y = -0.9;
+    // scene.add(gridHelper);
+
+    // const geoSphere = new THREE.SphereGeometry( 11,8, 4 ); 
+    // // const geoSphere = new THREE.OctahedronGeometry(1, 1);
+    // const matSphere = new THREE.MeshBasicMaterial({ color: 0x2f2f2f, wireframe: false, visible: true });
+    // const sphere = new THREE.Mesh(geoSphere, matSphere);
+    // scene.add(sphere);
+
+    //
+
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var material = new THREE.MeshBasicMaterial({ color: 0x005E99 });
+
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.set(1, 10, 1);
+    scene.add(cube);
+
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 14;
+    //
+
+    var curve = new THREE.CubicBezierCurve3(
+      new THREE.Vector3(-10, 0, 0),
+      new THREE.Vector3(-8, 3, 0),
+      new THREE.Vector3(-6, -6, 0),
+      new THREE.Vector3(5, 0, 0)
+    );
+
+    var points = curve.getPoints(50);
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+    var material = new THREE.LineBasicMaterial({ color: 0xff00ff });
+
+    // Create the final object to add to the scene
+    var curveObject = new THREE.Line(geometry, material);
+
+    scene.add(curveObject);
+
+    var clock = new THREE.Clock()
+    clock.start()
+
+    var speed = 0.105;
+
+    var pathTarget = new THREE.Vector3(0, 0, 0)
+
+    var render = function () {
+      curve.getPoint((clock.getElapsedTime() * speed) % 1.0, pathTarget)
+
+      cube.position.copy(pathTarget)
+      // camera.position.copy(pathTarget)
+      // camera.lookAt(cube.position)
+
+      requestAnimationFrame(render);
+
+      // cube.rotation.x += 0.1;
+      // cube.rotation.y += 0.1;
+
+      renderer.render(scene, camera);
+    };
+
+    render();
+
+  </script>
+</body>
+
+</html>
