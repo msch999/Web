@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>camera_along_path copy</title>
+  <title>along_path.001</title>
   <style>
     body {
       margin: 0;
@@ -28,12 +28,6 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    // RENDERER.shadowMap.enabled = true
-    // LIGHT.castShadow = true
-    // MESH.receiveShadow = true
-    // MESH.castShadow = true
-
-    // https://gist.github.com/BarakChamo/9ed37256e29b78d28ff5176d6264746a
     var scene = new THREE.Scene();
     // wireframe material toggle
     const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
@@ -60,14 +54,6 @@
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    // Lighting
-    // const light = new THREE.DirectionalLight(0xffffff, 10);
-    // // light.position.set(-2, 2, -3).normalize();
-    // light.position.set(-10, 10, 20);
-    // light.position.x = -10;
-    // light.position.y = 10;
-    // light.position.z = 20;
-    //
     const pointLight = new THREE.PointLight(0xffddff, 15, 10, 1.5);   // color, intensity, distance, decay
     pointLight.position.set(1, 2.5, 2.5);
     scene.add(pointLight);
@@ -93,7 +79,7 @@
     // plane.rotateX(- Math.PI / 2);
     plane.position.y = 0;
     plane.position.z = -1;
-    scene.add(plane);
+    // scene.add(plane);
 
     const gridHelper = new THREE.GridHelper(5 /* size */, 10 /* divisions */);
     gridHelper.rotateX(- Math.PI / 2);
@@ -110,9 +96,9 @@
     const sphereClone1 = sphere.clone();
     const sphereClone2 = sphere.clone();
 
-    sphereClone1.position.set(-2.5, 2.5, 1);
-    sphere.position.set(0, 0, 0);
-    sphereClone2.position.set(2.5, -2.5, -1);
+    // sphereClone1.position.set(-2.5, 2.5, 1);
+    // sphere.position.set(0, 0, 0);
+    // sphereClone2.position.set(2.5, -2.5, -1);
 
     scene.add(sphere);
     scene.add(sphereClone1);
@@ -120,7 +106,6 @@
     //
 
     var geometry = new THREE.BoxGeometry(1, 1, 1);
-    // var material = new THREE.MeshBasicMaterial({ color: 0x005E99 });
     var material = new THREE.MeshStandardMaterial({ color: 0x005E99 });
 
     var cube = new THREE.Mesh(geometry, material);
@@ -133,13 +118,41 @@
     camera.position.z = 10;
     //
 
-    var curve = new THREE.CubicBezierCurve3(
+    // ---------- ----------
+    // CURVE PATH
+    // ---------- ----------
+    const v1 = new THREE.Vector3(-4, 0, 3);
+    const v2 = new THREE.Vector3(3, 0, 3);
+    const v3 = new THREE.Vector3(-4, 0, -5);
+    const vc1 = v2.clone().lerp(v3, 0.5).add(new THREE.Vector3(4, 0, -1));
+
+    const curve = new THREE.CurvePath();
+    curve.add(new THREE.LineCurve3(v1, v2));
+    curve.add(new THREE.QuadraticBezierCurve3(v2, vc1, v3));
+    curve.add(new THREE.LineCurve3(v3, v1));
+    // ---------- ----------
+    // OBJECTS
+    // ---------- ----------
+    const points1 = new THREE.Points(
+      new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
+      new THREE.PointsMaterial({ size: 0.1, color: 0xffff00 }));
+    scene.add(points1);
+
+    sphereClone1.position.set(-4, 0, 3);
+    sphere.position.set(3, 0, 3);
+    sphereClone2.position.set(-4, 0, -5);
+
+
+    // pink farbene curve
+    var curvePink = new THREE.CubicBezierCurve3(
       new THREE.Vector3(-5, 0, 0),
       new THREE.Vector3(-2.5, 5, 0),
       new THREE.Vector3(2.5, -5, 0),
       new THREE.Vector3(5, 0, 0)
     );
+    curve.add(curvePink);
 
+    // punkte für blaue zick zack linie
     var pointsArray = [];
     pointsArray.push(
       new THREE.Vector3(-5, 0, 0),
@@ -150,46 +163,16 @@
       new THREE.Vector3(5, 2, 0)
     );
     var lineGeo = new THREE.BufferGeometry().setFromPoints(pointsArray);
-    
     var line = new THREE.Line(
       lineGeo,
       new THREE.LineBasicMaterial({
         color: 0x0000ff
       }));
 
+    // curve.add(line);  
     scene.add(line);
-
-    // var curve = new THREE.CatmullRomCurve3([
-    //   new THREE.Vector3(0, - 40, - 40),
-    //   new THREE.Vector3(0, 40, - 40),
-    //   new THREE.Vector3(0, 140, - 40),
-    //   new THREE.Vector3(0, 40, 40),
-    //   new THREE.Vector3(0, - 40, 40)
-    // ]);
-    // curve.closed = true;
     //
-    // class CustomSinCurve extends THREE.Curve {
-    //   constructor(scale = 1) {
-    //     super();
-    //     this.scale = scale;
-    //   }
-    //   getPoint(t, optionalTarget = new THREE.Vector3()) {
-    //     const tx = t * 3 - 1.5;
-    //     const ty = Math.sin(2 * Math.PI * t);
-    //     const tz = 0;
-    //     return optionalTarget.set(tx, ty, tz).multiplyScalar(this.scale);
-    //   }
-    // }
-    //    const path = new CustomSinCurve(3);
-    // // const path = curve;
-    // path.closed = true;
-    // // tubeGeo: path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean
-    // const tubeGeometry = new THREE.TubeGeometry(path, 15, 1.0, 8, false);
-    // const meshMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
-    // const mesh = new THREE.Mesh(tubeGeometry, meshMaterial);
-    // mesh.scale.set(1, 1, 1);
-    // scene.add(mesh);
-    // //
+    // var points = curvePink.getPoints(40);   // number of pieces to divide the curve into. Default is 5.
     var points = curve.getPoints(40);   // number of pieces to divide the curve into. Default is 5.
     var geometry = new THREE.BufferGeometry().setFromPoints(points);
 
@@ -201,7 +184,7 @@
 
     var clock = new THREE.Clock()
     clock.start()
-    var speed = 0.0125;
+    var speed = 0.125;
     // var speed = 0;
     var pathTarget = new THREE.Vector3(0, 0, 0)
 
