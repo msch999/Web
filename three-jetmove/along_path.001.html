@@ -121,29 +121,50 @@
     // ---------- ----------
     // CURVE PATH
     // ---------- ----------
-    const v1 = new THREE.Vector3(-4, 0, 3);
-    const v2 = new THREE.Vector3(3, 0, 3);
-    const v3 = new THREE.Vector3(-4, 0, -5);
+    const v1 = new THREE.Vector3(-5, 0, 0);
+    const v2 = new THREE.Vector3(2, 0, 0);
+    const v3 = new THREE.Vector3(-5, 0, -8);
     const vc1 = v2.clone().lerp(v3, 0.5).add(new THREE.Vector3(4, 0, -1));
 
     const curve = new THREE.CurvePath();
+
     curve.add(new THREE.LineCurve3(v1, v2));
     curve.add(new THREE.QuadraticBezierCurve3(v2, vc1, v3));
     curve.add(new THREE.LineCurve3(v3, v1));
+
+    const v4 = v1;
+    const v5 = new THREE.Vector3(5, 1, 0);
+    curve.add(new THREE.LineCurve3(v4, v5));
+
+    const v6 = new THREE.Vector3(-5, 1, 0);
+    curve.add(new THREE.LineCurve3(v5, v6));
+
+    const v7 = new THREE.Vector3(5, 2, 0);
+    curve.add(new THREE.LineCurve3(v6, v7));
+    
+    const v8 = new THREE.Vector3(-5, 2, 0);
+    curve.add(new THREE.LineCurve3(v7, v8));
+
+    const v9 = new THREE.Vector3(-6.42, 1, 0);
+    curve.add(new THREE.LineCurve3(v8, v9));
+    
+    curve.add(new THREE.LineCurve3(v9, v1));
+
     // ---------- ----------
     // OBJECTS
     // ---------- ----------
-    const points1 = new THREE.Points(
-      new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
-      new THREE.PointsMaterial({ size: 0.1, color: 0xffff00 }));
-    scene.add(points1);
+    // the yellow points
+    // const points1 = new THREE.Points(
+    //   new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
+    //   new THREE.PointsMaterial({ size: 0.1, color: 0xffff00 }));
+    // scene.add(points1);
 
     sphereClone1.position.set(-4, 0, 3);
     sphere.position.set(3, 0, 3);
     sphereClone2.position.set(-4, 0, -5);
 
 
-    // pink farbene curve
+    // pink farbene 'sinus' curve
     var curvePink = new THREE.CubicBezierCurve3(
       new THREE.Vector3(-5, 0, 0),
       new THREE.Vector3(-2.5, 5, 0),
@@ -152,25 +173,28 @@
     );
     curve.add(curvePink);
 
-    // punkte für blaue zick zack linie
-    var pointsArray = [];
-    pointsArray.push(
-      new THREE.Vector3(-5, 0, 0),
-      new THREE.Vector3(5, 0, 0),
-      new THREE.Vector3(-5, 1, 0),
-      new THREE.Vector3(5, 1, 0),
-      new THREE.Vector3(-5, 2, 0),
-      new THREE.Vector3(5, 2, 0)
-    );
-    var lineGeo = new THREE.BufferGeometry().setFromPoints(pointsArray);
-    var line = new THREE.Line(
-      lineGeo,
-      new THREE.LineBasicMaterial({
-        color: 0x0000ff
-      }));
+    curve.add(new THREE.LineCurve3(new THREE.Vector3(5, 0, 0), v1));
 
-    // curve.add(line);  
-    scene.add(line);
+
+    // punkte für blaue zick zack linie
+    // var pointsArray = [];
+    // pointsArray.push(
+    //   new THREE.Vector3(-5, 0, 0),
+    //   new THREE.Vector3(5, 0, 0),
+    //   new THREE.Vector3(-5, 1, 0),
+    //   new THREE.Vector3(5, 1, 0),
+    //   new THREE.Vector3(-5, 2, 0),
+    //   new THREE.Vector3(5, 2, 0)
+    // );
+    // var lineGeo = new THREE.BufferGeometry().setFromPoints(pointsArray);
+    // var line = new THREE.Line(
+    //   lineGeo,
+    //   new THREE.LineBasicMaterial({
+    //     color: 0x0000ff
+    //   }));
+
+    // // curve.add(line);  --> error, no curve
+    // scene.add(line);
     //
     // var points = curvePink.getPoints(40);   // number of pieces to divide the curve into. Default is 5.
     var points = curve.getPoints(40);   // number of pieces to divide the curve into. Default is 5.
@@ -184,7 +208,7 @@
 
     var clock = new THREE.Clock()
     clock.start()
-    var speed = 0.125;
+    var speed = 0.0125;
     // var speed = 0;
     var pathTarget = new THREE.Vector3(0, 0, 0)
 
@@ -197,8 +221,8 @@
 
       requestAnimationFrame(render);
 
-      // cube.rotation.x += 0.1;
-      // cube.rotation.y += 0.1;
+      cube.rotation.x += 0.1;
+      cube.rotation.y += 0.1;
 
       renderer.render(scene, camera);
     };
