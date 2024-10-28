@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+ead>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>extruded_geometries</title>
+<style>
+  body {
+    margin: 0;
+  }
+
+  canvas {
+    display: block;
+  }
+</style>
+<script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+        }
+      }
+  </script>
+</head>
+
+<body>
+  <script type="module">
+    // https://codepen.io/boytchev/pen/KKxVzzp
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    // general setup of environment
+
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color('gainsboro');
+
+    var camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight);
+    camera.position.set(0, 30, 100);
+    camera.lookAt(scene.position);
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setAnimationLoop(animationLoop);
+    document.body.appendChild(renderer.domElement);
+
+    window.addEventListener("resize", (event) => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    var hemisphereLight = new THREE.HemisphereLight('yellow', 'crimson');
+    scene.add(hemisphereLight);
+
+    var light = new THREE.DirectionalLight('white', 0.5);
+    light.position.set(1, 1, 1);
+    scene.add(light);
+
+
+    // a cnavas to generate a texture image
+
+    var canvas = document.createElement('CANVAS');
+    canvas.width = 32;
+    canvas.height = 32;
+
+
+    // procedurally defining of a thick black border with tan interior
+
+    var context = canvas.getContext('2d');
+    context.fillStyle = 'tan';
+    context.fillRect(0, 0, 32, 32);
+    context.strokeStyle = 'black';
+    context.lineWidth = 2;
+    context.strokeRect(1, 1, 31, 31);
+
+
+    // finally creating a canvas
+
+    var texture = new THREE.CanvasTexture(canvas);
+    texture.repeat.set(2, 2);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+
+
+    // a shape to be extruded
+
+    var shape = new THREE.Shape();
+    // shape.moveTo(0, 0);
+    // shape.quadraticCurveTo(4, 8, 0, 8.2);
+    // shape.quadraticCurveTo(-4, 8, 0, 0);
+    // // a hole in the shape
+    // var hole = new THREE.Path();
+    // hole.moveTo(1.7, 6.1);
+    // hole.absarc(0, 6.1, 1.7, 0, Math.PI * 2, false);
+    // shape.holes.push(hole);
+
+    // var shape = new THREE.Shape();
+    // shape.moveTo(0, -5);
+    // shape.lineTo(5, 5);
+    // shape.lineTo(-5, 5);
+    // shape.lineTo(0, -5); // close path
+    // // a hole in the shape
+    // var hole = new THREE.Path();
+    // hole.moveTo(2.7, 2.1);
+    // hole.absarc(0, 2.1, 2.7, 0, Math.PI * 2, false);
+    // shape.holes.push(hole);
+
+    var shape = new THREE.Shape();
+    shape.moveTo(-5, -5);
+    shape.lineTo(5, -5);
+    shape.lineTo(5, 5);
+    shape.lineTo(-5, 5);
+    shape.lineTo(-5, -5); // close path
+    // a hole in the shape
+    var hole = new THREE.Path();
+    hole.moveTo(4.0, 0.0);
+    hole.absarc(0, 0, 3.0, 0, Math.PI * 2, false);
+    shape.holes.push(hole);
+
+    var extrudeSettings = {
+      depth: 2,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      steps: 2,
+      bevelSize: 0.1,
+      bevelThickness: 0.1,
+      curveSegments: 42
+    };
+
+    var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings),
+      material = new THREE.MeshPhongMaterial({ specular: 'white', map: texture });
+      // material = new THREE.MeshPhongMaterial({ specular: 'white' });
+
+
+    // a horde of geomarkers
+
+    for (var i = 0; i < 50; i++) {
+      var geoMarker = new THREE.Mesh(geometry, material);
+      geoMarker.position.set(140 * Math.random() - 70, -10, 140 * Math.random() - 70);
+      var scale = 1 / 7 + Math.random();
+      // var scale = 1;
+      geoMarker.scale.set(scale, scale, scale);
+      geoMarker.rotation.set(0, 2 * Math.PI * Math.random(), 0);
+
+      scene.add(geoMarker);
+    }
+
+
+
+    // animation loop
+
+    function animationLoop(t) {
+      light.position.copy(camera.position);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+  </script>
+</body>
+
+</html>

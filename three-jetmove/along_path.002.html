@@ -32,7 +32,7 @@
     // wireframe material toggle
     const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
     document.addEventListener('keydown', function (event) {
-      console.log(`Key "${event.key}" pressed [event: keydown]`);
+      // console.log(`Key "${event.key}" pressed [event: keydown]`);
       // W Pressed: Toggle wireframe
       if (event.key === 'W') {
         if (scene.overrideMaterial != overrideMaterial) {
@@ -90,7 +90,7 @@
     // scene.add(sphereClone2);
     //
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var geometry = new THREE.BoxGeometry(0.5, 0.5 , 0.5);
     var material = new THREE.MeshStandardMaterial({ color: 0x005E99 });
     var cube = new THREE.Mesh(geometry, material);
     cube.castShadow = true;
@@ -110,10 +110,11 @@
 
     const curve = new THREE.CurvePath();
 
-    // curve.add(new THREE.LineCurve3(v1, v2));
-    // curve.add(new THREE.QuadraticBezierCurve3(v2, vc1, v3));
-    // curve.add(new THREE.LineCurve3(v3, v1));
-    // // zig zag 1
+    curve.add(new THREE.LineCurve3(v1, v2));
+    curve.add(new THREE.QuadraticBezierCurve3(v2, vc1, v3));
+    curve.add(new THREE.LineCurve3(v3, v1));
+
+    // // // zig zag 1
     // const v4 = new THREE.Vector3(5, 1, 0);
     // curve.add(new THREE.LineCurve3(v1, v4));
 
@@ -130,26 +131,26 @@
     // curve.add(new THREE.LineCurve3(v7, v8));
 
     // curve.add(new THREE.LineCurve3(v8, v1));
-    // // pink farbene 'sinus' curve
-    // var curvePink = new THREE.CubicBezierCurve3(
-    //   new THREE.Vector3(-5, 0, 0),
-    //   new THREE.Vector3(-2.5, 5, 0),
-    //   new THREE.Vector3(2.5, -5, 0),
-    //   new THREE.Vector3(5, 0, 0)
-    // );
-    // curve.add(curvePink);
+
+    // 'sinus' curve
+    var curveSinus = new THREE.CubicBezierCurve3(
+      new THREE.Vector3(-5, 0, 0),
+      new THREE.Vector3(-4.5, 7, 0.5),
+      new THREE.Vector3(4.5, -7, 0.5),
+      new THREE.Vector3(5, 0, 0)
+    );
+    curve.add(curveSinus);
+
+    var curveSinus2 = new THREE.CubicBezierCurve3(
+      new THREE.Vector3(5, 0, 0),
+      new THREE.Vector3(4.5, 7, -0.5),
+      new THREE.Vector3(-4.5, -7, -0.5),
+      new THREE.Vector3(-5, 0, 0)
+    );
+    curve.add(curveSinus2);
     // curve.add(new THREE.LineCurve3(new THREE.Vector3(5, 0, 0), v1));
 
-
     // -----------------------------------------------------------------
-    // const pathPoints = [
-    //   new THREE.Vector3(-10, 0, 10),
-    //   new THREE.Vector3(-5, 5, 5),
-    //   new THREE.Vector3(0, 0, 0),
-    //   new THREE.Vector3(5, -5, 5),
-    //   new THREE.Vector3(10, 0, 10),
-    // ];
-
     const pathPoints = [
       new THREE.Vector3(-5, 0, 0),
       new THREE.Vector3(0, 5, -5),
@@ -172,50 +173,60 @@
 
     // the yellow points
     // const points1 = new THREE.Points(
-    //   new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(550)),
+    //   new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
     //   new THREE.PointsMaterial({ size: 0.05, color: 0xffff00 }));
     // scene.add(points1);
 
     // the pink line
-    var points = curve.getPoints(30);   // number of pieces to divide the curve into. Default is 5.
-    var geometry = new THREE.BufferGeometry().setFromPoints(points);
-    var material = new THREE.LineBasicMaterial({ color: 0xff00ff });
-    var curveObject = new THREE.Line(geometry, material);
-    scene.add(curveObject);
+    // var points = curve.getPoints(130);   // number of pieces to divide the curve into. Default is 5.
+    // var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    // var material = new THREE.LineBasicMaterial({ color: 0xff00ff });
+    // var curveObject = new THREE.Line(geometry, material);
+    // scene.add(curveObject);
+
+    // -----------------------------------------------------------------
+    /*
+      TubeGeometry(path : Curve, tubularSegments : Integer, radius : Float, radialSegments : Integer, closed : Boolean)
+      path — Curve - A 3D path that inherits from the Curve base class. Default is a quadratic bezier curve.
+      tubularSegments — Integer - The number of segments that make up the tube. Default is 64.
+      radius — Float - The radius of the tube. Default is 1.
+      radialSegments — Integer - The number of segments that make up the cross-section. Default is 8.
+      closed — Boolean Is the tube open or closed. Default is false.
+    */
+
+    // create a tube geometry from the curve
+    // const tubeGeo = new THREE.TubeGeometry(curve, 222, 0.65, 16, true);
+    const tubeGeo = new THREE.TubeGeometry(curve, 256, 0.65, 16, true);
+
+    // create edges geometry from the spline
+    const edges = new THREE.EdgesGeometry(tubeGeo, 0.2);
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x5a5a00 });
+    const tubeLines = new THREE.LineSegments(edges, lineMat);
+    scene.add(tubeLines);
+    // -----------------------------------------------------------------
+
+    const sp = 20000.0;
 
     function animate() {
       // Update the position of the box along the path
       const time = Date.now();
-      const t = ((time / 2000) % 6) / 6; // t should be between 0 and 1 for the CatmullRom curve
-      const position = curve.getPointAt(t);
-      cube.position.copy(position);
+      const t = ((time / sp) % 6) / 6; // t should be between 0 and 1 for the CatmullRom curve
+      const t2 = (((time / sp) + 0.25 ) % 6) / 6;
+      const camPos = curve.getPointAt(t);
+      camera.position.copy(camPos);
+      // const camTangent = curve.getTangentAt(t).normalize();
+      // camera.lookAt(camPos.clone().add(camTangent));
+
+      const cubePos = curve.getPointAt(t2);
+      cube.position.copy(cubePos);
+      const cubeTangent = curve.getTangentAt(t2).normalize();
+      cube.lookAt(cubePos.clone().add(cubeTangent));
+      camera.lookAt(cubePos);
 
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
     }
     animate();
-
-    // everthing set up, now animating
-
-    // var clock = new THREE.Clock()
-    // clock.start()
-
-    // // var speed = 0.0125;  // slooow
-    // var speed = 0.125;
-    // // var speed = 0;
-
-    // var pathTarget = new THREE.Vector3(0, 0, 0)
-
-    // var render = function () {
-    //   curve.getPoint((clock.getElapsedTime() * speed) % 1.0, pathTarget)
-    //   cube.position.copy(pathTarget)
-
-    //   requestAnimationFrame(render);
-
-    //   renderer.render(scene, camera);
-    // };
-
-    // render();
 
   </script>
 </body>
