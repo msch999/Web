@@ -30,8 +30,9 @@ const dirLight1 = new THREE.DirectionalLight(0xffffff, 3);
 dirLight1.position.set(2, 2, 2);
 scene.add(dirLight1);
 
-const dirLight2 = new THREE.DirectionalLight(0x002288, 3);
-dirLight2.position.set(- 2, - 2, - 2);
+//const dirLight2 = new THREE.DirectionalLight(0x002288, 3);
+const dirLight2 = new THREE.DirectionalLight(0x00FFFF, 3);
+dirLight2.position.set(-3, 2, 2);
 scene.add(dirLight2);
 
 const ambientLight = new THREE.AmbientLight(0x555555);
@@ -55,8 +56,76 @@ const geometry = new THREE.BoxGeometry(1, 1, 1);
 const material = new THREE.MeshNormalMaterial({ wireframe: false, transparent: true, opacity: 0.8 });
 
 const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+//scene.add(cube);
+// ###########################################################################################################
 
+const mygeometry = new THREE.BufferGeometry();
+
+const vertices = new Float32Array([
+	-1.0, -1.0, 1.0, // v0
+	1.0, -1.0, 1.0, // v1
+	1.0, 1.0, 1.0, // v2
+	-1.0, 1.0, 1.0, // v3
+]);
+
+const indices = [
+	0, 1, 2,
+	2, 3, 0,
+];
+
+mygeometry.setIndex(indices);
+mygeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+const mymaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const mesh = new THREE.Mesh(mygeometry, mymaterial);
+
+//scene.add(mesh);
+
+// ###########################################################################################################
+var v = [
+	0.0, 0.0, 0.0,
+   -1.0, 0.0, 0.0,
+   -1.0,-1.0, 0.0,
+
+   -1.0,-1.0, 0.0,
+	0.0,-1.0, 0.0,
+    0.0, 0.0, 0.0,
+// ------------------
+	0.0, 0.0, 0.0,
+	0.0, -1.0, 0.0,
+	0.0,0.0, 1.0,
+
+	0.0, 0.0, 1.0,
+	0.0, -1.0, 0.0,
+	0.0, -1.0, 1.0,
+// ------------------
+
+
+//    -1.0,-1.0,0.0,
+//    -1.0,-1.0,0.0,
+// 	1.0,-1.0,0.0,
+// 	1.0,-1.0,0.0,
+// 	1.0,-1.0,0.0,
+// 	1.0,-1.0,0.0,
+];
+
+let vertGeometry = new THREE.BufferGeometry();
+vertGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(v), 3));
+
+//vertGeometry.vertices = points;
+//vertGeometry.faces = faces;
+//vertGeometry.mergeVertices();
+
+const vertMaterial = new THREE.MeshPhongMaterial({
+	color: 0xFFFF00,    // red (can also use a CSS color string here)
+	flatShading: true,
+	side: THREE.DoubleSide,
+});
+var mesh1 = new THREE.Mesh(vertGeometry, vertMaterial)
+
+scene.add(mesh1)
+
+// ###########################################################################################################
 camera.position.z = 5;
 
 const controls = new OrbitControls(camera, renderer.domElement);

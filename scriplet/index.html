@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>scriplet page</title>
+  <style>
+    body {
+      margin: 20pt;
+    }
+  </style>
+</head>
+
+<body>
+  <a>
+    from: https://www.freecodecamp.org/news/what-are-bookmarklets/#heading-example-bookmarklets
+  </a>
+
+  <br />
+  <br />
+<p>
+  <a href="
+  javascript: (() => {
+    let myInput = prompt("Welchen Text?");
+    if (myInput == null) return;
+    const xpath = "//a [contains(@title, '" + myInput + "')]";
+    const elements = document.evaluate(xpath, document);
+    if (elements == null) return;
+    let node = null;
+    while ((node = elements.iterateNext())) {
+      console.log(node.localName + ' ' + node.title);
+      node.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
+    console.log(xpath);
+  })();
+  ">
+    Scroll To!
+  </a>
+</p>
+
+
+
+  <br />
+  <br />
+
+  <a href="
+  javascript: (() => {
+    let myInput = prompt("Welchen Text?");
+    if (myInput == null) return;
+    const xpath = "//a [contains(@title, '" + 'TV Sender:' + "')]";
+    const elements = document.evaluate(xpath, document);
+
+    let node = null;
+    let dieSender = '';
+    const tagNames = [];
+    while ((node = elements.iterateNext())) {
+      tagNames.push(node.localName);
+      console.log(node.title);
+      dieSender = dieSender + node.title.slice(11, node.title.length) + '|';
+    }
+    console.log(xpath);
+    console.log(dieSender);
+  })();
+  ">
+    Do dieSender!
+  </a>
+
+  <p>
+    RTL|RTL2|VOX|n-tv|RTL Nitro|SRTL|Pro7|Kabel1|Sat1|sixx|DMAX|TLC|Tele 5|ProSieben MAXX|kabel eins Doku|Sport1|Sat1 Gold|Ki.Ka|Comedy Central|3sat|ZDF|ZDFneo|arte|Disney Channel|ARD - Das Erste|ZDFinfokanal|WELT|one|ARD-alpha|DW-tv|Tagesschau24|MDR|WDR|BR|RBB|Phoenix|HR|NDR|SWR|RTL|RTL2|VOX|n-tv|RTL Nitro|SRTL|Pro7|Kabel1|Sat1|sixx|DMAX|TLC|Tele 5|ProSieben MAXX|kabel eins Doku|Sport1|Sat1 Gold|Ki.Ka|Comedy Central|3sat|ZDF|ZDFneo|arte|Disney Channel|ARD - Das Erste|ZDFinfokanal|WELT|one|ARD-alpha|DW-tv|Tagesschau24|MDR|WDR|BR|RBB|Phoenix|HR|NDR|SWR|
+  </p>
+  <br />
+  <a href="/tv-programm/rtl" title="TV Sender: t1"><span>TST1</span></a>
+  <br />
+  <br />
+
+  <a href="
+  javascript: (() => {
+    let myInput = prompt("Welchen Text?");
+    if (myInput == null) return;
+    const xpath = "//a [contains(@title, '" + myInput + "')]";
+    const elements = document.evaluate(xpath, document);
+    const element = elements.iterateNext();
+    if (element) {
+      console.log('title: ' + element.title);
+      element.scrollIntoView();
+    } else {
+      console.log('xpath not found: ' + xpath);
+    }
+    console.log(xpath);
+  })();
+  ">
+    Scroll to it now!
+  </a>
+
+  <br />
+  <br />
+
+  <a href="
+javascript: (() => {   alert('Hello, World!'); })();
+">
+    Hello, World!
+  </a>
+
+  <br />
+  <br />
+
+  <a href="
+  javascript: (() => {   alert(document.cookie); })();
+  ">
+    EvilScript
+  </a>
+
+  <br />
+  <br />
+
+  <a href="
+  javascript: (() => {
+  const allElements = document.querySelectorAll('*');
+
+  for (let element of allElements) {
+    element.style.fontFamily = 'Comic Sans MS';
+  }
+})();
+">
+    change font
+  </a>
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <br />
+  <br />
+
+  <a href="/tv-programm/rtl" title="TV Sender: t2"><span>TST2</span></a>
+  <br />
+  <br />
+</body>
+
+</html>
