@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
+// following https://www.youtube.com/watch?v=dLYMzNmILQA
+
 const scene = new THREE.Scene();
 // wireframe material toggle
 const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
@@ -38,26 +40,19 @@ const ambientLight = new THREE.AmbientLight(0x555555);
 scene.add(ambientLight);
 
 // plane
-const geoPlane = new THREE.PlaneGeometry(5, 5);
-const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
-const plane = new THREE.Mesh(geoPlane, matPlane);
-plane.rotateX(- Math.PI / 2);
-plane.position.y = -1.0;
-scene.add(plane);
+// const geoPlane = new THREE.PlaneGeometry(5, 5);
+// const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
+// const plane = new THREE.Mesh(geoPlane, matPlane);
+// plane.rotateX(- Math.PI / 2);
+// plane.position.y = -1.0;
+// scene.add(plane);
 
 // const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
 // gridHelper.position.y = -0.9;
 // scene.add(gridHelper);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
-//const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-const material = new THREE.MeshNormalMaterial({ wireframe: false, transparent: true, opacity: 0.8 });
-
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
-camera.position.z = 10;
+camera.position.y = -1;
+camera.position.z = 1;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -67,67 +62,24 @@ const gui = new GUI();
 gui.add(document, 'title');
 gui.add(controls, 'enableDamping', true);
 
-const cubefolder = gui.addFolder('the cube');
+// particles 
+const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
 
-const cubeParams = {
-	resetToDefault() { setDefaultCubeParams() },
-	opacityChangeSwitch: false,
-	rotationVelocity: 0.003,
-	rotationSwitch: false,
-	rotationXplus: true,
-	rotationX: true,
-	rotationYplus: true,
-	rotationY: true
-};
+const particlesGeometry = new THREE.BufferGeometry;
 
-cubefolder.add(cubeParams, 'resetToDefault');
-cubefolder.add(material, 'opacity', 0, 1).listen();
-cubefolder.add(cubeParams, 'opacityChangeSwitch').name('auto opacity').listen();
+// Materials
+const material = new THREE.PointsMaterial({
+	transparent: true,
+	size: 0.005
+})
 
-cubefolder.add(cubeParams, 'rotationVelocity', 0, 1).listen();
-cubefolder.add(cubeParams, 'rotationSwitch').listen();  // .disable();
-cubefolder.add(cubeParams, 'rotationXplus').listen();
-cubefolder.add(cubeParams, 'rotationX').listen();
-cubefolder.add(cubeParams, 'rotationYplus').listen();
-cubefolder.add(cubeParams, 'rotationY').listen();
-
-function setDefaultCubeParams() {
-	cubeParams.opacityChangeSwitch = false;
-	cubeParams.rotationVelocity = 0.003;
-	cubeParams.rotationSwitch = false;
-	cubeParams.rotationXplus = true;
-	cubeParams.rotationX = true;
-	cubeParams.rotationYplus = true;
-	cubeParams.rotationY = true;
-	material.opacity = 0.8;
-}
-
-function animateCubeParams() {
-	if (cubeParams.rotationSwitch) {
-		if (cubeParams.rotationXplus) {
-			if (cubeParams.rotationX)
-				cube.rotation.x += cubeParams.rotationVelocity;
-		} else {
-			cube.rotation.x -= cubeParams.rotationVelocity;
-		}
-
-		if (cubeParams.rotationYplus) {
-			if (cubeParams.rotationY)
-				cube.rotation.y += cubeParams.rotationVelocity;
-		} else {
-			cube.rotation.y -= cubeParams.rotationVelocity;
-		}
-	}
-
-	if (cubeParams.opacityChangeSwitch) {
-		// constantly change :  Math.sin(Date.now() * 0.001) * 2.5;
-		material.opacity = Math.sin(Date.now() * 0.001) * 1;
-	}
-}
+// Mesh
+const sphere = new THREE.Points(geometry,material)
+scene.add(sphere)
 
 function animate() {
 
-	animateCubeParams();
+	sphere.rotation.z += 0.001;
 
 	controls.update();
 	renderer.render(scene, camera);
