@@ -63,9 +63,9 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
-const gui = new GUI();
-gui.add(document, 'title');
-gui.add(controls, 'enableDamping', true);
+// const gui = new GUI();
+// gui.add(document, 'title');
+// gui.add(controls, 'enableDamping', true);
 
 // particles 
 const geometryTorus = new THREE.TorusGeometry( .7, .2, 16, 100 );
