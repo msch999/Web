@@ -55,9 +55,9 @@ scene.add(ambientLight);
 // camera.position.y = -1;
 // camera.position.z = 1;
 
-camera.position.x = 0.7927700291963748;
-camera.position.y = 0.27554957942604696;
-camera.position.z = 0.11207120461205183;
+camera.position.x = -0.010188180522270354;
+camera.position.y = -0.5656480684505114;
+camera.position.z = -0.6300081812587338;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
