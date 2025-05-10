@@ -51,8 +51,13 @@ scene.add(ambientLight);
 // gridHelper.position.y = -0.9;
 // scene.add(gridHelper);
 
-camera.position.y = -1;
-camera.position.z = 1;
+// camera.position.x = 0;
+// camera.position.y = -1;
+// camera.position.z = 1;
+
+camera.position.x = 0.7927700291963748;
+camera.position.y = 0.27554957942604696;
+camera.position.z = 0.11207120461205183;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -63,9 +68,20 @@ gui.add(document, 'title');
 gui.add(controls, 'enableDamping', true);
 
 // particles 
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+const geometryTorus = new THREE.TorusGeometry( .7, .2, 16, 100 );
 
 const particlesGeometry = new THREE.BufferGeometry;
+const particlesCnt = 5000;  // why not 'particlesCount'?
+
+const posArray = new Float32Array( particlesCnt * 3);
+// xyz, xyz, xyz, xyz
+
+for(let i = 0; i < particlesCnt * 3; i++) {
+	posArray[i] = Math.random();
+}
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
+
 
 // Materials
 const material = new THREE.PointsMaterial({
@@ -74,12 +90,13 @@ const material = new THREE.PointsMaterial({
 })
 
 // Mesh
-const sphere = new THREE.Points(geometry,material)
-scene.add(sphere)
+const sphere = new THREE.Points(geometryTorus,material)
+const particlesMesh = new THREE.Points(particlesGeometry, material)
+scene.add(sphere, particlesMesh)
 
 function animate() {
 
-	sphere.rotation.z += 0.001;
+	sphere.rotation.z += 0.00025;
 
 	controls.update();
 	renderer.render(scene, camera);
@@ -89,13 +106,21 @@ function animate() {
 var raycaster = new THREE.Raycaster();
 var pointer = new THREE.Vector2();
 
+let logMsg = '';
+
 function onPointerClick(event) {
 	raycaster.setFromCamera(pointer, camera);
 
-	const intersects = raycaster.intersectObject(cube);
+	const intersects = raycaster.intersectObject(sphere);
 	if (intersects.length > 0) {
-		//console.log('INTERSECT');
-		cubeParams.rotationSwitch = !cubeParams.rotationSwitch;
+		//console.log('INTERSECT ' + Math.floor((Math.random() * 10) + 1));
+		//cubeParams.rotationSwitch = !cubeParams.rotationSwitch;
+		console.log(camera.position);
+		logMsg = null;
+		logMsg = 'camera.position.x = ' + camera.position.x + ';'  + "\n";
+		logMsg = logMsg + 'camera.position.y = ' + camera.position.y + ';'  + "\n";
+		logMsg = logMsg + 'camera.position.z = ' + camera.position.z + ';'  + "\n";
+		console.log(logMsg);
 	}
 }
 
