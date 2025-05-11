@@ -9,8 +9,8 @@ const scene = new THREE.Scene();
 // wireframe material toggle
 const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 document.addEventListener('keydown', function (event) {
-	// W Pressed: Toggle wireframe
-	if (event.keyCode === 87) {
+	// w Pressed: Toggle wireframe
+	if (event.key === 'w') {
 		if (scene.overrideMaterial != overrideMaterial) {
 			scene.overrideMaterial = overrideMaterial;
 		} else {
@@ -82,7 +82,7 @@ const posArray = new Float32Array( particlesCnt * 3);
 // xyz, xyz, xyz, xyz
 
 for(let i = 0; i < particlesCnt * 3; i++) {
-	posArray[i] = (Math.random() - 0.5) * 5;
+	posArray[i] = (Math.random() - 0.5) * (Math.random() * 5);
 }
 
 particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
@@ -111,6 +111,24 @@ function animate() {
 var raycaster = new THREE.Raycaster();
 var pointer = new THREE.Vector2();
 
+
+
+let startTime;
+let milliseconds;
+
+function startTimer() {
+    startTime = Date.now();
+    setInterval(updateTimer, 1); // Update every millisecond
+}
+
+function updateTimer() {
+    const currentTime = Date.now();
+    milliseconds = currentTime - startTime;
+    //console.log(milliseconds); // Display milliseconds in the console
+}
+
+startTimer();
+
 let logMsg = '';
 
 function onPointerClick(event) {
@@ -125,6 +143,7 @@ function onPointerClick(event) {
 		logMsg = 'camera.position.x = ' + camera.position.x + ';'  + "\n";
 		logMsg = logMsg + 'camera.position.y = ' + camera.position.y + ';'  + "\n";
 		logMsg = logMsg + 'camera.position.z = ' + camera.position.z + ';'  + "\n";
+		logMsg = logMsg + milliseconds + "\n";
 		console.log(logMsg);
 	}
 }
