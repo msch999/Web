@@ -3,7 +3,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 // following https://www.youtube.com/watch?v=dLYMzNmILQA
-// current pos: https://youtu.be/dLYMzNmILQA?t=821
+// current pos: https://youtu.be/dLYMzNmILQA?t=1293
+
+// TextureLoader
+const loader = new THREE.TextureLoader();
+const cross = loader.load('./cross.png');
 
 const scene = new THREE.Scene();
 // wireframe material toggle
@@ -25,6 +29,9 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+// background color
+renderer.setClearColor(new THREE.Color('#21282a'),1);
+
 renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
 
@@ -54,15 +61,7 @@ scene.add(ambientLight);
 
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 2.5;
-
-camera.position.x = -0.007386293017833375;
-camera.position.y = 0.8086568643156223;
-camera.position.z = -0.01522286080253277;
-
-// camera.position.x = -0.010188180522270354;
-// camera.position.y = -0.5656480684505114;
-// camera.position.z = -0.6300081812587338;
+camera.position.z = 1.3;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -82,52 +81,73 @@ const posArray = new Float32Array( particlesCnt * 3);
 // xyz, xyz, xyz, xyz
 
 for(let i = 0; i < particlesCnt * 3; i++) {
-	posArray[i] = (Math.random() - 0.5) * (Math.random() * 5);
+	posArray[i] = (Math.random() - 0.5) * 5;
 }
 
 particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
 
-
 // Materials
 const material = new THREE.PointsMaterial({
-	transparent: true,
+//	transparent: true,
 	size: 0.005
+})
+
+const particlesMaterial = new THREE.PointsMaterial({
+	size: 0.009,
+	map: cross,
+	transparent: true,
+	//color: 'yellow'
 })
 
 // Mesh
 const sphere = new THREE.Points(geometryTorus,material)
-const particlesMesh = new THREE.Points(particlesGeometry, material)
+const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial)
 scene.add(sphere, particlesMesh)
 
-function animate() {
+const clock = new THREE.Clock();
 
-	sphere.rotation.z += 0.00025;
+function animate() {
+	const elapsedTime = clock.getElapsedTime();
+
+    const speed = 0.5 * elapsedTime;
+	sphere.rotation.x = speed * 0;
+	sphere.rotation.y = speed * 0;
+	sphere.rotation.z = speed * 0.05;
+
+	particlesMesh.rotation.x = -mouseY * (elapsedTime * 0.00008);
+	particlesMesh.rotation.y = -mouseX * (elapsedTime * 0.00008);
 
 	controls.update();
 	renderer.render(scene, camera);
+}
 
+let mouseX = 0;
+let mouseY = 0;
+
+function animateParticles(event) {
+	mouseX = event.clientX;
+	mouseY = event.clientY;
 }
 
 var raycaster = new THREE.Raycaster();
 var pointer = new THREE.Vector2();
 
+// // counting milliseconds 
+// let startTime;
+// let milliseconds;
 
+// function startTimer() {
+//     startTime = Date.now();
+//     setInterval(updateTimer, 1); // Update every millisecond
+// }
 
-let startTime;
-let milliseconds;
+// function updateTimer() {
+//     const currentTime = Date.now();
+//     milliseconds = currentTime - startTime;
+//     //console.log(milliseconds); // Display milliseconds in the console
+// }
 
-function startTimer() {
-    startTime = Date.now();
-    setInterval(updateTimer, 1); // Update every millisecond
-}
-
-function updateTimer() {
-    const currentTime = Date.now();
-    milliseconds = currentTime - startTime;
-    //console.log(milliseconds); // Display milliseconds in the console
-}
-
-startTimer();
+// startTimer();
 
 let logMsg = '';
 
@@ -137,13 +157,11 @@ function onPointerClick(event) {
 	const intersects = raycaster.intersectObject(sphere);
 	if (intersects.length > 0) {
 		//console.log('INTERSECT ' + Math.floor((Math.random() * 10) + 1));
-		//cubeParams.rotationSwitch = !cubeParams.rotationSwitch;
-		//console.log(camera.position);
-		logMsg = null;
-		logMsg = 'camera.position.x = ' + camera.position.x + ';'  + "\n";
-		logMsg = logMsg + 'camera.position.y = ' + camera.position.y + ';'  + "\n";
-		logMsg = logMsg + 'camera.position.z = ' + camera.position.z + ';'  + "\n";
-		logMsg = logMsg + milliseconds + "\n";
+		logMsg = 'random: ' + Math.floor((Math.random() * 100) + 1);
+		// logMsg = 'camera.position.x = ' + camera.position.x + ';'  + "\n";
+		// logMsg = logMsg + 'camera.position.y = ' + camera.position.y + ';'  + "\n";
+		// logMsg = logMsg + 'camera.position.z = ' + camera.position.z + ';'  + "\n";
+		// logMsg = logMsg + milliseconds + "\n";
 		console.log(logMsg);
 	}
 }
@@ -151,6 +169,7 @@ function onPointerClick(event) {
 function onPointerMove(event) {
 	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
 	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+	animateParticles(event);
 }
 
 window.addEventListener('mousedown', onPointerClick, false);
