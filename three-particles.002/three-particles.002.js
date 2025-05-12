@@ -30,7 +30,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 // background color
-renderer.setClearColor(new THREE.Color('#21282a'),1);
+renderer.setClearColor(new THREE.Color('#21282a'), 1);
 
 renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
@@ -72,15 +72,15 @@ controls.dampingFactor = 0.03;
 // gui.add(controls, 'enableDamping', true);
 
 // particles 
-const geometryTorus = new THREE.TorusGeometry( .7, .2, 16, 100 );
+const geometryTorus = new THREE.TorusGeometry(.7, .2, 16, 100);
 
 const particlesGeometry = new THREE.BufferGeometry;
 const particlesCnt = 5000;  // why not 'particlesCount'?
 
-const posArray = new Float32Array( particlesCnt * 3);
+const posArray = new Float32Array(particlesCnt * 3);
 // xyz, xyz, xyz, xyz
 
-for(let i = 0; i < particlesCnt * 3; i++) {
+for (let i = 0; i < particlesCnt * 3; i++) {
 	posArray[i] = (Math.random() - 0.5) * 5;
 }
 
@@ -88,7 +88,7 @@ particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3
 
 // Materials
 const material = new THREE.PointsMaterial({
-//	transparent: true,
+	//	transparent: true,
 	size: 0.005
 })
 
@@ -100,7 +100,7 @@ const particlesMaterial = new THREE.PointsMaterial({
 })
 
 // Mesh
-const sphere = new THREE.Points(geometryTorus,material)
+const sphere = new THREE.Points(geometryTorus, material)
 const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial)
 scene.add(sphere, particlesMesh)
 
@@ -109,13 +109,17 @@ const clock = new THREE.Clock();
 function animate() {
 	const elapsedTime = clock.getElapsedTime();
 
-    const speed = 0.5 * elapsedTime;
+	const speed = 0.5 * elapsedTime;
 	sphere.rotation.x = speed * 0;
 	sphere.rotation.y = speed * 0;
 	sphere.rotation.z = speed * 0.05;
 
-	particlesMesh.rotation.x = -mouseY * (elapsedTime * 0.00008);
-	particlesMesh.rotation.y = -mouseX * (elapsedTime * 0.00008);
+	particlesMesh.rotation.y = -0.1 * elapsedTime;
+
+	if (mouseX > 0) {
+		particlesMesh.rotation.x = -mouseY * (elapsedTime * 0.00008);
+		particlesMesh.rotation.y = mouseX * (elapsedTime * 0.00008);
+	}
 
 	controls.update();
 	renderer.render(scene, camera);
