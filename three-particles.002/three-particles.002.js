@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 // following https://www.youtube.com/watch?v=dLYMzNmILQA
-// current pos: https://youtu.be/dLYMzNmILQA?t=1293
+// current pos: https://youtu.be/dLYMzNmILQA?t=1655
 
 // TextureLoader
 const loader = new THREE.TextureLoader();
