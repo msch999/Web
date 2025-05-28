@@ -83,16 +83,16 @@ for (let i = 0; i < particleCount; i++) {
 scene.add(particlesGroup);
 
 // Add lines connecting only circle particles in index order
-const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 1 });
-const lineGeometry = new THREE.BufferGeometry();
-const linePositions = [];
+const lineMaterialCircle = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 1 });
+const lineGeometryCircle = new THREE.BufferGeometry();
+const linePositionsCircle = [];
 let lastCircleIdx = null;
 for (let i = 0; i < particleCount; i++) {
     if (materialsForParticles[i] === particlesMaterials[1]) { // 1 = circle
         if (lastCircleIdx !== null) {
             const idxA = lastCircleIdx * 3;
             const idxB = i * 3;
-            linePositions.push(
+            linePositionsCircle.push(
                 positions[idxA], positions[idxA + 1], positions[idxA + 2],
                 positions[idxB], positions[idxB + 1], positions[idxB + 2]
             );
@@ -100,9 +100,31 @@ for (let i = 0; i < particleCount; i++) {
         lastCircleIdx = i;
     }
 }
-lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-particlesGroup.add(lines);
+lineGeometryCircle.setAttribute('position', new THREE.Float32BufferAttribute(linePositionsCircle, 3));
+const linesCircle = new THREE.LineSegments(lineGeometryCircle, lineMaterialCircle);
+particlesGroup.add(linesCircle);
+
+// Add lines connecting only cross particles in index order
+const lineMaterialCross = new THREE.LineBasicMaterial({ color: 0xff69b4, linewidth: 1 }); // Hot pink
+const lineGeometryCross = new THREE.BufferGeometry();
+const linePositionsCross = [];
+let lastCrossIdx = null;
+for (let i = 0; i < particleCount; i++) {
+    if (materialsForParticles[i] === particlesMaterials[0]) { // 0 = cross
+        if (lastCrossIdx !== null) {
+            const idxA = lastCrossIdx * 3;
+            const idxB = i * 3;
+            linePositionsCross.push(
+                positions[idxA], positions[idxA + 1], positions[idxA + 2],
+                positions[idxB], positions[idxB + 1], positions[idxB + 2]
+            );
+        }
+        lastCrossIdx = i;
+    }
+}
+lineGeometryCross.setAttribute('position', new THREE.Float32BufferAttribute(linePositionsCross, 3));
+const linesCross = new THREE.LineSegments(lineGeometryCross, lineMaterialCross);
+particlesGroup.add(linesCross);
 
 let particleRotation = 0;
 
