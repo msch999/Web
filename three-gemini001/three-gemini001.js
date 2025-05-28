@@ -70,6 +70,26 @@ particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 
 const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 scene.add(particles);
 
+// Add lines connecting some particles
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 1 });
+const lineGeometry = new THREE.BufferGeometry();
+const linePositions = [];
+
+// Connect every 10th particle to the next one (as an example)
+for (let i = 0; i < particleCount - 1; i += 10) {
+    const idxA = i * 3;
+    const idxB = (i + 10) * 3;
+    if (idxB < positions.length) {
+        // Point A
+        linePositions.push(positions[idxA], positions[idxA + 1], positions[idxA + 2]);
+        // Point B
+        linePositions.push(positions[idxB], positions[idxB + 1], positions[idxB + 2]);
+    }
+}
+lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+particles.add(lines);
+
 let particleRotation = 0;
 
 camera.position.z = 6;
