@@ -151,28 +151,49 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
+let animationRunning = true;
+let rotationRunning = true;
+let colorAnimationRunning = true;
 let colorChangeTimer = 0;
 const colorChangeInterval = 30; // frames between color changes (slower)
+let clickState = 0; // 0: all running, 1: rotation stopped, 2: color stopped
 
-let animationRunning = true;
-
-function stopAnimation() {
-    animationRunning = false;
+function stopRotation() {
+    rotationRunning = false;
 }
-
-function startAnimation() {
-    if (!animationRunning) {
-        animationRunning = true;
-        renderer.setAnimationLoop(animate);
-    }
+function startRotation() {
+    rotationRunning = true;
+}
+function stopColorAnimation() {
+    colorAnimationRunning = false;
+}
+function startColorAnimation() {
+    colorAnimationRunning = true;
+}
+function startAll() {
+    animationRunning = true;
+    rotationRunning = true;
+    colorAnimationRunning = true;
+    renderer.setAnimationLoop(animate);
+}
+function stopAll() {
+    animationRunning = false;
+    renderer.setAnimationLoop(null);
 }
 
 function toggleAnimation() {
-    if (animationRunning) {
-        renderer.setAnimationLoop(null);
-        stopAnimation();
+    clickState = (clickState + 1) % 3;
+    if (clickState === 1) {
+        stopRotation();
+        startColorAnimation();
+        animationRunning = true;
+        renderer.setAnimationLoop(animate);
+    } else if (clickState === 2) {
+        stopColorAnimation();
+        animationRunning = true;
+        renderer.setAnimationLoop(animate);
     } else {
-        startAnimation();
+        startAll();
     }
 }
 
@@ -180,39 +201,42 @@ window.addEventListener('click', toggleAnimation);
 
 function animate() {
     if (!animationRunning) return;
-	particleRotation += 0.001;
-	particlesGroup.rotation.y = particleRotation;
-
-	colorChangeTimer++;
-	if (colorChangeTimer >= colorChangeInterval) {
-		colorChangeTimer = 0;
-		// Animate colors for each segment (circles)
-		const colorsCircle = linesCircle.geometry.attributes.color.array;
-		for (let i = 0; i < colorsCircle.length; i += 6) {
-			const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
-			colorsCircle[i] = color.r;
-			colorsCircle[i+1] = color.g;
-			colorsCircle[i+2] = color.b;
-			colorsCircle[i+3] = color.r;
-			colorsCircle[i+4] = color.g;
-			colorsCircle[i+5] = color.b;
-		}
-		linesCircle.geometry.attributes.color.needsUpdate = true;
-		// Animate colors for each segment (crosses)
-		const colorsCross = linesCross.geometry.attributes.color.array;
-		for (let i = 0; i < colorsCross.length; i += 6) {
-			const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
-			colorsCross[i] = color.r;
-			colorsCross[i+1] = color.g;
-			colorsCross[i+2] = color.b;
-			colorsCross[i+3] = color.r;
-			colorsCross[i+4] = color.g;
-			colorsCross[i+5] = color.b;
-		}
-		linesCross.geometry.attributes.color.needsUpdate = true;
-	}
-	controls.update();
-	renderer.render(scene, camera);
+    if (rotationRunning) {
+        particleRotation += 0.001;
+        particlesGroup.rotation.y = particleRotation;
+    }
+    if (colorAnimationRunning) {
+        colorChangeTimer++;
+        if (colorChangeTimer >= colorChangeInterval) {
+            colorChangeTimer = 0;
+            // Animate colors for each segment (circles)
+            const colorsCircle = linesCircle.geometry.attributes.color.array;
+            for (let i = 0; i < colorsCircle.length; i += 6) {
+                const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+                colorsCircle[i] = color.r;
+                colorsCircle[i+1] = color.g;
+                colorsCircle[i+2] = color.b;
+                colorsCircle[i+3] = color.r;
+                colorsCircle[i+4] = color.g;
+                colorsCircle[i+5] = color.b;
+            }
+            linesCircle.geometry.attributes.color.needsUpdate = true;
+            // Animate colors for each segment (crosses)
+            const colorsCross = linesCross.geometry.attributes.color.array;
+            for (let i = 0; i < colorsCross.length; i += 6) {
+                const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+                colorsCross[i] = color.r;
+                colorsCross[i+1] = color.g;
+                colorsCross[i+2] = color.b;
+                colorsCross[i+3] = color.r;
+                colorsCross[i+4] = color.g;
+                colorsCross[i+5] = color.b;
+            }
+            linesCross.geometry.attributes.color.needsUpdate = true;
+        }
+    }
+    controls.update();
+    renderer.render(scene, camera);
 }
 
 window.addEventListener('resize', onWindowResize, false);
