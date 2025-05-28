@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+// TextureLoader
+const loader = new THREE.TextureLoader();
+const cross = loader.load('./cross.png');
 
 const scene = new THREE.Scene();
 // wireframe material toggle
@@ -8,12 +11,13 @@ const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wirefram
 document.addEventListener('keydown', function (event) {
 	// W Pressed: Toggle wireframe
 	if (event.key === 'W') {
-				if (scene.overrideMaterial != overrideMaterial) {
+		console.log('W Pressed: Toggle wireframe');
+		if (scene.overrideMaterial != overrideMaterial) {
 			scene.overrideMaterial = overrideMaterial;
 		} else {
 			scene.overrideMaterial = null;
 		}
-		scene.material.needsUpdate = true;
+		//scene.material.needsUpdate = true;
 	}
 });
 // wireframe material toggle
@@ -45,121 +49,46 @@ plane.rotateX(- Math.PI / 2);
 plane.position.y = -1.0;
 scene.add(plane);
 
-// const gridHelper = new THREE.GridHelper(10 /* size */, 10 /* divisions */);
-// gridHelper.position.y = -0.9;
-// scene.add(gridHelper);
+// Add particles
+const particlesMaterial = new THREE.PointsMaterial({
+	size: 0.1,
+	map: cross,
+	transparent: true,
+	color: 'yellow'
+})
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
-//const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-const material = new THREE.MeshNormalMaterial({ wireframe: false, transparent: true, opacity: 0.8 });
+const particleCount = 200;
+const particlesGeometry = new THREE.BufferGeometry();
+const positions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 10; // x
+    positions[i * 3 + 1] = Math.random() * 5 + 0.5; // y
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+}
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+scene.add(particles);
 
-camera.position.z = 10;
+let particleRotation = 0;
+
+camera.position.z = 6;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
-const gui = new GUI();
-gui.add(document, 'title');
-gui.add(controls, 'enableDamping', true);
-
-const cubefolder = gui.addFolder('the cube');
-
-const cubeParams = {
-	resetToDefault() { setDefaultCubeParams() },
-	opacityChangeSwitch: false,
-	rotationVelocity: 0.003,
-	rotationSwitch: false,
-	rotationXplus: true,
-	rotationX: true,
-	rotationYplus: true,
-	rotationY: true
-};
-
-cubefolder.add(cubeParams, 'resetToDefault');
-cubefolder.add(material, 'opacity', 0, 1).listen();
-cubefolder.add(cubeParams, 'opacityChangeSwitch').name('auto opacity').listen();
-
-cubefolder.add(cubeParams, 'rotationVelocity', 0, 1).listen();
-cubefolder.add(cubeParams, 'rotationSwitch').listen();  // .disable();
-cubefolder.add(cubeParams, 'rotationXplus').listen();
-cubefolder.add(cubeParams, 'rotationX').listen();
-cubefolder.add(cubeParams, 'rotationYplus').listen();
-cubefolder.add(cubeParams, 'rotationY').listen();
-
-function setDefaultCubeParams() {
-	cubeParams.opacityChangeSwitch = false;
-	cubeParams.rotationVelocity = 0.003;
-	cubeParams.rotationSwitch = false;
-	cubeParams.rotationXplus = true;
-	cubeParams.rotationX = true;
-	cubeParams.rotationYplus = true;
-	cubeParams.rotationY = true;
-	material.opacity = 0.8;
-}
-
-function animateCubeParams() {
-	if (cubeParams.rotationSwitch) {
-		if (cubeParams.rotationXplus) {
-			if (cubeParams.rotationX)
-				cube.rotation.x += cubeParams.rotationVelocity;
-		} else {
-			cube.rotation.x -= cubeParams.rotationVelocity;
-		}
-
-		if (cubeParams.rotationYplus) {
-			if (cubeParams.rotationY)
-				cube.rotation.y += cubeParams.rotationVelocity;
-		} else {
-			cube.rotation.y -= cubeParams.rotationVelocity;
-		}
-	}
-
-	if (cubeParams.opacityChangeSwitch) {
-		// constantly change :  Math.sin(Date.now() * 0.001) * 2.5;
-		material.opacity = Math.sin(Date.now() * 0.001) * 1;
-	}
-}
-
 function animate() {
-
-	animateCubeParams();
-
+	particleRotation += 0.01;
+	particles.rotation.y = particleRotation;
 	controls.update();
 	renderer.render(scene, camera);
-
 }
-
-var raycaster = new THREE.Raycaster();
-var pointer = new THREE.Vector2();
-
-function onPointerClick(event) {
-	raycaster.setFromCamera(pointer, camera);
-
-	const intersects = raycaster.intersectObject(cube);
-	if (intersects.length > 0) {
-		//console.log('INTERSECT');
-		cubeParams.rotationSwitch = !cubeParams.rotationSwitch;
-	}
-}
-
-function onPointerMove(event) {
-	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-}
-
-window.addEventListener('mousedown', onPointerClick, false);
-window.addEventListener('mousemove', onPointerMove, false);
 
 window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
-
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
