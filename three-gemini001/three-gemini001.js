@@ -7,8 +7,8 @@ const scene = new THREE.Scene();
 const overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 document.addEventListener('keydown', function (event) {
 	// W Pressed: Toggle wireframe
-	if (event.keyCode === 87) {
-		if (scene.overrideMaterial != overrideMaterial) {
+	if (event.key === 'W') {
+				if (scene.overrideMaterial != overrideMaterial) {
 			scene.overrideMaterial = overrideMaterial;
 		} else {
 			scene.overrideMaterial = null;
