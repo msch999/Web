@@ -154,7 +154,32 @@ controls.dampingFactor = 0.03;
 let colorChangeTimer = 0;
 const colorChangeInterval = 30; // frames between color changes (slower)
 
+let animationRunning = true;
+
+function stopAnimation() {
+    animationRunning = false;
+}
+
+function startAnimation() {
+    if (!animationRunning) {
+        animationRunning = true;
+        renderer.setAnimationLoop(animate);
+    }
+}
+
+function toggleAnimation() {
+    if (animationRunning) {
+        renderer.setAnimationLoop(null);
+        stopAnimation();
+    } else {
+        startAnimation();
+    }
+}
+
+window.addEventListener('click', toggleAnimation);
+
 function animate() {
+    if (!animationRunning) return;
 	particleRotation += 0.001;
 	particlesGroup.rotation.y = particleRotation;
 
