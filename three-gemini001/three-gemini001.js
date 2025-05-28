@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// Add text in the center
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 // TextureLoader
 const loader = new THREE.TextureLoader();
@@ -141,6 +144,26 @@ lineGeometryCross.setAttribute('position', new THREE.Float32BufferAttribute(line
 lineGeometryCross.setAttribute('color', new THREE.Float32BufferAttribute(lineColorsCross, 3));
 linesCross = new THREE.LineSegments(lineGeometryCross, lineMaterialCross);
 particlesGroup.add(linesCross);
+
+// Add text in the center
+const fontLoader = new FontLoader();
+fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.150.1/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+    const textGeo = new TextGeometry(
+        'Proudly programmed by Github Copilot GPT-4.1, asked by msch',
+        {
+            font: font,
+            size: 0.35,
+            height: 0.05,
+            curveSegments: 8,
+            bevelEnabled: false
+        }
+    );
+    textGeo.center();
+    const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const textMesh = new THREE.Mesh(textGeo, textMat);
+    textMesh.position.set(0, 0, 0);
+    scene.add(textMesh);
+});
 
 let particleRotation = 0;
 
