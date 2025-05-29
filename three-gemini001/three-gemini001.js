@@ -3,6 +3,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // Add text in the center
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 
 // TextureLoader
 const loader = new THREE.TextureLoader();
@@ -94,8 +97,8 @@ const colorOptions = [0xFFC312, 0xC4E538, 0x12CBC4, 0xFDA7DF, 0xED4C67,
 let linesCircle, linesCross;
 
 // Add lines connecting only circle particles in index order
-const lineMaterialCircle = new THREE.LineBasicMaterial({ vertexColors: true, linewidth: 1 });
-const lineGeometryCircle = new THREE.BufferGeometry();
+const lineMaterialCircle = new LineMaterial({ vertexColors: true, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+const lineGeometryCircle = new LineGeometry();
 const linePositionsCircle = [];
 const lineColorsCircle = [];
 let lastCircleIdx = null;
@@ -115,14 +118,14 @@ for (let i = 0; i < particleCount; i++) {
         lastCircleIdx = i;
     }
 }
-lineGeometryCircle.setAttribute('position', new THREE.Float32BufferAttribute(linePositionsCircle, 3));
-lineGeometryCircle.setAttribute('color', new THREE.Float32BufferAttribute(lineColorsCircle, 3));
-linesCircle = new THREE.LineSegments(lineGeometryCircle, lineMaterialCircle);
+lineGeometryCircle.setPositions(linePositionsCircle);
+lineGeometryCircle.setColors(lineColorsCircle);
+linesCircle = new Line2(lineGeometryCircle, lineMaterialCircle);
 particlesGroup.add(linesCircle);
 
 // Add lines connecting only cross particles in index order
-const lineMaterialCross = new THREE.LineBasicMaterial({ vertexColors: true, linewidth: 1 });
-const lineGeometryCross = new THREE.BufferGeometry();
+const lineMaterialCross = new LineMaterial({ vertexColors: true, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+const lineGeometryCross = new LineGeometry();
 const linePositionsCross = [];
 const lineColorsCross = [];
 let lastCrossIdx = null;
@@ -142,9 +145,9 @@ for (let i = 0; i < particleCount; i++) {
         lastCrossIdx = i;
     }
 }
-lineGeometryCross.setAttribute('position', new THREE.Float32BufferAttribute(linePositionsCross, 3));
-lineGeometryCross.setAttribute('color', new THREE.Float32BufferAttribute(lineColorsCross, 3));
-linesCross = new THREE.LineSegments(lineGeometryCross, lineMaterialCross);
+lineGeometryCross.setPositions(linePositionsCross);
+lineGeometryCross.setColors(lineColorsCross);
+linesCross = new Line2(lineGeometryCross, lineMaterialCross);
 particlesGroup.add(linesCross);
 
 // Add text in the center
@@ -237,29 +240,23 @@ function animate() {
         if (colorChangeTimer >= colorChangeInterval) {
             colorChangeTimer = 0;
             // Animate colors for each segment (circles)
-            const colorsCircle = linesCircle.geometry.attributes.color.array;
-            for (let i = 0; i < colorsCircle.length; i += 6) {
-                const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
-                colorsCircle[i] = color.r;
-                colorsCircle[i+1] = color.g;
-                colorsCircle[i+2] = color.b;
-                colorsCircle[i+3] = color.r;
-                colorsCircle[i+4] = color.g;
-                colorsCircle[i+5] = color.b;
+            if (linesCircle && linesCircle.geometry) {
+                const colorsCircle = [];
+                for (let i = 0; i < linePositionsCircle.length; i += 6) {
+                    const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+                    colorsCircle.push(color.r, color.g, color.b, color.r, color.g, color.b);
+                }
+                linesCircle.geometry.setColors(colorsCircle);
             }
-            linesCircle.geometry.attributes.color.needsUpdate = true;
             // Animate colors for each segment (crosses)
-            const colorsCross = linesCross.geometry.attributes.color.array;
-            for (let i = 0; i < colorsCross.length; i += 6) {
-                const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
-                colorsCross[i] = color.r;
-                colorsCross[i+1] = color.g;
-                colorsCross[i+2] = color.b;
-                colorsCross[i+3] = color.r;
-                colorsCross[i+4] = color.g;
-                colorsCross[i+5] = color.b;
+            if (linesCross && linesCross.geometry) {
+                const colorsCross = [];
+                for (let i = 0; i < linePositionsCross.length; i += 6) {
+                    const color = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+                    colorsCross.push(color.r, color.g, color.b, color.r, color.g, color.b);
+                }
+                linesCross.geometry.setColors(colorsCross);
             }
-            linesCross.geometry.attributes.color.needsUpdate = true;
         }
     }
     // Animate text color fade between line colors
@@ -280,10 +277,10 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-window.addEventListener('resize', onWindowResize, false);
-
-function onWindowResize() {
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(window.innerWidth, window.innerHeight);
-}
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (lineMaterialCircle) lineMaterialCircle.resolution.set(window.innerWidth, window.innerHeight);
+    if (lineMaterialCross) lineMaterialCross.resolution.set(window.innerWidth, window.innerHeight);
+});
