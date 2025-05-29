@@ -67,9 +67,9 @@ const particlesGeometry = new THREE.BufferGeometry();
 const positions = new Float32Array(particleCount * 3);
 const materialsForParticles = [];
 for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 10; // x
-    positions[i * 3 + 1] = Math.random() * 5 + 0.5; // y
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+    positions[i * 3] = (Math.random() - 0.5) * 12; // x
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 12; // y 
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 12; // z
     // Randomly assign a material (cross or circle)
     materialsForParticles.push(particlesMaterials[Math.floor(Math.random() * particlesMaterials.length)]);
 }
