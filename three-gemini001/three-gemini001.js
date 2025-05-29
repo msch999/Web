@@ -86,7 +86,9 @@ for (let i = 0; i < particleCount; i++) {
 scene.add(particlesGroup);
 
 // Helper: color options for lines
-const colorOptions = [0xff69b4, 0x00ffff, 0xffff00, 0xff0000, 0x00ff00, 0xffa500, 0x0000ff, 0xffffff, 0x00ff00];
+// const colorOptions = [0xff69b4, 0x00ffff, 0xffff00, 0xff0000, 0x00ff00, 0xffa500, 0x0000ff, 0xffffff, 0x00ff00];
+const colorOptions = [0xFFC312, 0xC4E538, 0x12CBC4, 0xFDA7DF, 0xED4C67,
+0xF79F1F, 0xA3CB38, 0x1289A7, 0xD980FA];
 
 // Store references to line objects for per-segment color animation
 let linesCircle, linesCross;
@@ -146,11 +148,10 @@ linesCross = new THREE.LineSegments(lineGeometryCross, lineMaterialCross);
 particlesGroup.add(linesCross);
 
 // Add text in the center
+let textMesh;
+let textMat;
 const fontLoader = new FontLoader();
-// fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid/droid_sans_mono_regular.typeface.json', function(font) {
 fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid/droid_sans_regular.typeface.json', function(font) {
-// fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid/droid_serif_regular.typeface.json', function(font) {
-	
     const textGeo = new TextGeometry(
         'Proudly programmed by Github Copilot GPT-4.1\nprompted by »msch«',
         {
@@ -162,8 +163,8 @@ fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid
         }
     );
     textGeo.center();
-    const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const textMesh = new THREE.Mesh(textGeo, textMat);
+    textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    textMesh = new THREE.Mesh(textGeo, textMat);
     textMesh.position.set(0, 0, 0);
     scene.add(textMesh);
 });
@@ -181,7 +182,7 @@ let animationRunning = true;
 let rotationRunning = true;
 let colorAnimationRunning = true;
 let colorChangeTimer = 0;
-const colorChangeInterval = 30; // frames between color changes (slower)
+const colorChangeInterval = 120; // frames between color changes (slower)
 let clickState = 0; // 0: all running, 1: rotation stopped, 2: color stopped
 
 function stopRotation() {
@@ -260,6 +261,20 @@ function animate() {
             }
             linesCross.geometry.attributes.color.needsUpdate = true;
         }
+    }
+    // Animate text color fade between line colors
+    if (textMat) {
+        const t = performance.now() * 0.0005;
+        // Pick two colors from colorOptions to fade between
+        const idxA = Math.floor(t) % colorOptions.length;
+        const idxB = (idxA + 1) % colorOptions.length;
+        const colorA = new THREE.Color(colorOptions[idxA]);
+        const colorB = new THREE.Color(colorOptions[idxB]);
+        const blend = t % 1;
+        // Linear interpolation
+        textMat.color.r = colorA.r * (1 - blend) + colorB.r * blend;
+        textMat.color.g = colorA.g * (1 - blend) + colorB.g * blend;
+        textMat.color.b = colorA.b * (1 - blend) + colorB.b * blend;
     }
     controls.update();
     renderer.render(scene, camera);
