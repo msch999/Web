@@ -45,13 +45,13 @@ scene.add(dirLight2);
 const ambientLight = new THREE.AmbientLight(0x555555);
 scene.add(ambientLight);
 
-// plane
-const geoPlane = new THREE.PlaneGeometry(5, 5);
-const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
-const plane = new THREE.Mesh(geoPlane, matPlane);
-plane.rotateX(- Math.PI / 2);
-plane.position.y = -1.0;
-scene.add(plane);
+// // plane
+// const geoPlane = new THREE.PlaneGeometry(5, 5);
+// const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
+// const plane = new THREE.Mesh(geoPlane, matPlane);
+// plane.rotateX(- Math.PI / 2);
+// plane.position.y = -1.0;
+// scene.add(plane);
 
 // Add particles
 const particleTextures = [cross, circle];
@@ -147,13 +147,16 @@ particlesGroup.add(linesCross);
 
 // Add text in the center
 const fontLoader = new FontLoader();
-fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.150.1/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+// fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid/droid_sans_mono_regular.typeface.json', function(font) {
+fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid/droid_sans_regular.typeface.json', function(font) {
+// fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.167.1/examples/fonts/droid/droid_serif_regular.typeface.json', function(font) {
+	
     const textGeo = new TextGeometry(
-        'Proudly programmed by Github Copilot GPT-4.1, asked by msch',
+        'Proudly programmed by Github Copilot GPT-4.1\nprompted by »msch«',
         {
             font: font,
             size: 0.35,
-            height: 0.05,
+            depth: 0.05,
             curveSegments: 8,
             bevelEnabled: false
         }
@@ -167,8 +170,8 @@ fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.150.1/examples/fonts/helve
 
 let particleRotation = 0;
 
-camera.position.y = 7;
-camera.position.z = 6;
+camera.position.y = 1;
+camera.position.z = 7;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
