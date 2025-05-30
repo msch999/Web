@@ -76,9 +76,36 @@ const empty = '.';
 // The level is a 2D array of strings, each string represents a row 
 const level = {
     lev001: [
-        "#####",
-        "#.@^#",
-        "#.o.#",
-        "#...#",
-        "#####"]
+        "######",
+        "#.@.^#",
+        "#.o..#",
+        "#....#",
+        "######"]
 };
+
+// Place 1x1x1 boxes on the plane according to lev001
+const cellSize = 1;
+const yOffset = 0.5; // so boxes sit on the plane
+const colors = {
+    '#': 0x444444, // wall
+    '@': 0x2196f3, // player
+    'o': 0xff9800, // box
+    '.': 0xffffff  // empty (not rendered)
+};
+
+const lev = level.lev001;
+for (let z = 0; z < lev.length; z++) {
+    for (let x = 0; x < lev[z].length; x++) {
+        const cell = lev[z][x];
+        if (cell === '.' || cell === '^') continue; // skip empty and target for now
+        const boxGeo = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
+        const boxMat = new THREE.MeshStandardMaterial({ color: colors[cell] || 0x888888 });
+        const box = new THREE.Mesh(boxGeo, boxMat);
+        box.position.set(
+            (x - lev[z].length / 2 + 0.5) * cellSize,
+            yOffset,
+            (z - lev.length / 2 + 0.5) * cellSize
+        );
+        scene.add(box);
+    }
+}
