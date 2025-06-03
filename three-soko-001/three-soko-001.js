@@ -160,7 +160,7 @@ const colors = {
   playerOnGoal: 'lightblue'
 };
 
-for (let y = 0; y < lev001.length; y++) {
+for (let y = 0; y < options.height; y++) {
   const row = lev001[y];
   for (let x = 0; x < row.length; x++) {
     const cell = row[x];
