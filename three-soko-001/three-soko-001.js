@@ -1,7 +1,74 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { SimplexNoise } from 'three/addons/math/SimplexNoise.js'; // Or another noise library
+//------------------------------------------------------------------------------------------
+import Grid from "../../sokoban-generator/src/grid.js";
 
+export function generateSokobanLevel(parameters = {}) {
+  let {
+    width = 9,
+    height = 9,
+    boxes = 3,
+    minWalls = 13,
+    attempts = 5000,
+    seed = Date.now(),
+    initialPosition,
+    type = "string",
+  } = parameters;
+
+  let grid = new Grid(width, height, boxes, seed, minWalls, initialPosition);
+
+  while (--attempts > 0) {
+    if (!grid.applyTemplates()
+      || !grid.isGoodCandidate()
+      || !grid.redeployGoals()
+      || !grid.generateFarthestBoxes()) {
+      continue;
+    }
+
+    if (type === "string") {
+      return grid.toReadableString();
+    }
+
+    if (type === "class") {
+      return grid;
+    }
+
+    console.warn(`sokoban-generator/generateSokobanLevel: Unrecognized value for key "string": ${type}. It should be either "string" or "class`);
+    return grid.toReadableString();
+  }
+
+  return null;
+}
+
+// var myrng = new Math.seedrandom('Aabcdefh');
+// var myrng = new Math.seedrandom();
+var myrng = new Math.seedrandom('hello.');
+//console.log(myrng());                // Always 0.9282578795792454
+// console.log(myrng());                // Always 0.3752569768646784
+const options = {
+  width: 9, // the width of the sokoban grid 
+  height: 6, // the height of the sokoban grid
+  boxes: 3, // the boxes on the grid
+  minWalls: 13, // the minimum number of walls on the grid
+  attempts: 5000, // when generating the map, the maximum attempts
+  seed: myrng(), // map seed. See note below
+  initialPosition: { // The initial position of player
+    x: 3,
+    y: 0
+  },
+  type: "class", // the return type, either "string" or "class" 
+};
+
+let sokoLev = generateSokobanLevel(options);
+
+if (!sokoLev) {
+  console.error('Failed to generate a valid Sokoban level.');
+} 
+
+var readableStr = sokoLev._data.toReadableString();
+console.log(readableStr);
+//------------------------------------------------------------------------------------------
 
 const scene = new THREE.Scene();
 // wireframe material toggle
@@ -40,7 +107,7 @@ const ambientLight = new THREE.AmbientLight(0x555555);
 scene.add(ambientLight);
 
 // plane
-const geoPlane = new THREE.PlaneGeometry(5, 5);
+const geoPlane = new THREE.PlaneGeometry(options.width, options.height);
 const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
 const plane = new THREE.Mesh(geoPlane, matPlane);
 plane.rotateX(- Math.PI / 2);
@@ -63,49 +130,4 @@ camera.position.z = 4;
 function animate() {
     controls.update();
     renderer.render(scene, camera);
-}
-
-const wall = '#';
-const player = '@';
-const box = 'o';
-const target = '^'; 
-const empty = '.'; 
-// Level definition
-// This is a simple level layout using characters
-// '#' walls, '@' player, 'o' boxes, '^' targets, '.' empty spaces
-// The level is a 2D array of strings, each string represents a row 
-const level = {
-    lev001: [
-        "######",
-        "#.@.^#",
-        "#.o..#",
-        "#....#",
-        "######"]
-};
-
-// Place 1x1x1 boxes on the plane according to lev001
-const cellSize = 1;
-const yOffset = 0.5; // so boxes sit on the plane
-const colors = {
-    '#': 0x444444, // wall
-    '@': 0x2196f3, // player
-    'o': 0xff9800, // box
-    '.': 0xffffff  // empty (not rendered)
-};
-
-const lev = level.lev001;
-for (let z = 0; z < lev.length; z++) {
-    for (let x = 0; x < lev[z].length; x++) {
-        const cell = lev[z][x];
-        if (cell === '.' || cell === '^') continue; // skip empty and target for now
-        const boxGeo = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
-        const boxMat = new THREE.MeshStandardMaterial({ color: colors[cell] || 0x888888 });
-        const box = new THREE.Mesh(boxGeo, boxMat);
-        box.position.set(
-            (x - lev[z].length / 2 + 0.5) * cellSize,
-            yOffset,
-            (z - lev.length / 2 + 0.5) * cellSize
-        );
-        scene.add(box);
-    }
 }
