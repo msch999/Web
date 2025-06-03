@@ -66,8 +66,8 @@ if (!sokoLev) {
   console.error('Failed to generate a valid Sokoban level.');
 } 
 
-var readableStr = sokoLev._data.toReadableString();
-console.log(readableStr);
+//var readableStr = sokoLev._data.toReadableString();
+//console.log(readableStr);
 //------------------------------------------------------------------------------------------
 
 const scene = new THREE.Scene();
@@ -131,3 +131,85 @@ function animate() {
     controls.update();
     renderer.render(scene, camera);
 }
+
+// --- Sokoban Level Rendering ---
+let i = 0;
+let l = [];
+let row = '';
+let data = sokoLev._data.toReadableString();
+for (let i = 0; i < data.length; i++) {
+  if (data[i] === '\n') {
+    l.push(row);
+    row = '';
+    continue;
+  }       
+  row = row + data[i];    
+}
+console.log(data);
+const lev001 = l
+
+const cellSize = 1; // 1x1x1 boxes
+const yOffset = 0.5; // so boxes sit on the plane
+
+const colors = {
+  wall: 'gray',
+  player: 'green',
+  box: 'orange', 
+  goal: 'yellow',
+  boxOnGoal: 0xffcc66, // light orange
+  playerOnGoal: 'lightblue'
+};
+
+for (let y = 0; y < lev001.length; y++) {
+  const row = lev001[y];
+  for (let x = 0; x < row.length; x++) {
+    const cell = row[x];
+    let mesh = null;
+    if (cell === '#') {
+      // Wall
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshLambertMaterial({ color: colors.wall })
+      );
+    } else if (cell === '@') {
+      // Player
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshLambertMaterial({ color: colors.player })
+      );
+    } else if (cell === '$') {
+      // Box
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshLambertMaterial({ color: colors.box })
+      );
+    } else if (cell === '.') {
+      // Goal
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshLambertMaterial({ color: colors.goal })
+      );
+    } else if (cell === '*') {
+      // Box on goal
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshLambertMaterial({ color: colors.boxOnGoal })
+      );
+    } else if (cell === '+') {
+      // Player on goal
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(cellSize, cellSize, cellSize),
+        new THREE.MeshLambertMaterial({ color: colors.playerOnGoal })
+      );
+    }
+    if (mesh) {
+      mesh.position.set(
+        x - lev001[0].length / 2 + 0.5,
+        yOffset,
+        y - lev001.length / 2 + 0.5
+      );
+      scene.add(mesh);
+    }
+  }
+}
+// --- End Sokoban Level Rendering ---
