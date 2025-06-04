@@ -111,7 +111,7 @@ const geoPlane = new THREE.PlaneGeometry(options.width, options.height);
 const matPlane = new THREE.MeshBasicMaterial({ color: 0x999999, side: THREE.DoubleSide });
 const plane = new THREE.Mesh(geoPlane, matPlane);
 plane.rotateX(- Math.PI / 2);
-plane.position.y = -0.01;
+plane.position.y = -0.001;
 scene.add(plane);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -124,8 +124,8 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-camera.position.y = 3;
-camera.position.z = 4;
+camera.position.y = 4;
+camera.position.z = 3;
 
 function animate() {
     controls.update();
@@ -145,7 +145,8 @@ for (let i = 0; i < data.length; i++) {
   }       
   row = row + data[i];    
 }
-console.log(data);
+l.push(row);
+console.log(l);
 const lev001 = l
 
 const cellSize = 1; // 1x1x1 boxes
