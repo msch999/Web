@@ -42,8 +42,8 @@ export function generateSokobanLevel(parameters = {}) {
 }
 
 // var myrng = new Math.seedrandom('Aabcdefh');
-// var myrng = new Math.seedrandom();
-var myrng = new Math.seedrandom('hello.');
+var myrng = new Math.seedrandom();
+// var myrng = new Math.seedrandom('hello.');
 //console.log(myrng());                // Always 0.9282578795792454
 // console.log(myrng());                // Always 0.3752569768646784
 const options = {
@@ -88,6 +88,8 @@ document.addEventListener('keydown', function (event) {
 // wireframe material toggle
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.y = 5;
+camera.position.z = 3;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -123,9 +125,6 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-camera.position.y = 4;
-camera.position.z = 3;
 
 function animate() {
     controls.update();
