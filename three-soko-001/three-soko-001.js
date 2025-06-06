@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { SimplexNoise } from 'three/addons/math/SimplexNoise.js'; // Or another noise library
 //------------------------------------------------------------------------------------------
-import Grid from "../../sokoban-generator/src/grid.js";
+import Grid from "./src/grid.js";
 
 export function generateSokobanLevel(parameters = {}) {
   let {
