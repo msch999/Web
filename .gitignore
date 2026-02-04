@@ -13,3 +13,10 @@ junk/
 # is a git repo in itself
 bobbyroe-flythru-wireframe-wormhole/
 threejs-camera-demo/
+
+# live server config for https
+.vscode/
+localhost.pem
+localhost.key
+
+
