@@ -172,6 +172,14 @@
             margin-bottom: 0.5rem;
             text-transform: capitalize;
             color: #ffed4e;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .channel-name:hover {
+            color: #ffff00;
+            text-decoration: underline;
         }
 
         .channel-id {
@@ -252,6 +260,146 @@
             font-size: 1.1rem;
         }
 
+        .edit-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .edit-btn, .delete-btn {
+            background: none;
+            border: 1px solid rgba(150, 150, 255, 0.5);
+            color: #9696ff;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: rgba(150, 150, 255, 0.1);
+            border-color: #9696ff;
+        }
+
+        .delete-btn {
+            border-color: rgba(255, 100, 100, 0.5);
+            color: #ff6464;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 100, 100, 0.1);
+            border-color: #ff6464;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border: 2px solid rgba(227, 179, 5, 0.5);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1.5rem;
+            color: #ffed4e;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e3b305;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(227, 179, 5, 0.3);
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e3b305;
+            box-shadow: 0 0 8px rgba(227, 179, 5, 0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-actions button {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .modal-actions .save-btn {
+            background: rgba(100, 180, 255, 0.3);
+            border: 1px solid rgba(100, 180, 255, 0.6);
+            color: #64b4ff;
+        }
+
+        .modal-actions .save-btn:hover {
+            background: rgba(100, 180, 255, 0.5);
+            border-color: #64b4ff;
+        }
+
+        .modal-actions .cancel-btn {
+            background: rgba(150, 150, 150, 0.2);
+            border: 1px solid rgba(150, 150, 150, 0.5);
+            color: #b0b0b0;
+        }
+
+        .modal-actions .cancel-btn:hover {
+            background: rgba(150, 150, 150, 0.3);
+            border-color: #b0b0b0;
+        }
+
+        .add-channel-btn {
+            background: rgba(100, 200, 100, 0.3);
+            border: 1px solid rgba(100, 200, 100, 0.6);
+            color: #64c864;
+        }
+
+        .add-channel-btn:hover {
+            background: rgba(100, 200, 100, 0.5);
+            border-color: #64c864;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -268,6 +416,10 @@
 
             .sort-buttons {
                 flex-wrap: wrap;
+            }
+
+            .modal-content {
+                width: 95%;
             }
         }
     </style>
@@ -289,6 +441,7 @@
                 <button id="sortName" class="active">Sort by Name</button>
                 <button id="sortId">Sort by ID</button>
                 <button id="sortFav">★ Favorites</button>
+                <button id="addChannelBtn" class="add-channel-btn">+ Add Channel</button>
             </div>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search channels...">
@@ -300,44 +453,117 @@
         </div>
     </div>
 
-    <script>
-        const tvchannels = `
-3sat;1006
-arte;1007
-ard-alpha;169
-comedy-central;130
-dmax;110
-deluxe-music;127
-das-erste;165
-euronews;1090
-kabel-eins;3
-kika;173
-prosieben;1
-rbb;1280
-red-bull-tv;1027
-sat1;2
-sixx;4
-tagesschau-24;167
-tele-5;1026
-tlc;111
-welt;113
-zdf;123
-zdf-info;124
-`.trim().split("\n").map(line => {
-            const [name, id] = line.trim().split(";");
-            return { name: name.trim(), id: id.trim() };
-        });
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Channel</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="channelName">Channel Name</label>
+                    <input type="text" id="channelName" placeholder="e.g., BBC One" required>
+                </div>
+                <div class="form-group">
+                    <label for="channelId">Channel ID</label>
+                    <input type="number" id="channelId" placeholder="e.g., 1234" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="save-btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        const directLinkUrl = "https://www.joyn.de/play/live-tv?channel_id=";
+    <script>
+        const defaultChannels = [
+            { name: '3sat', id: '1006' },
+            { name: 'arte', id: '1007' },
+            { name: 'ard-alpha', id: '169' },
+            { name: 'comedy-central', id: '130' },
+            { name: 'dmax', id: '110' },
+            { name: 'deluxe-music', id: '127' },
+            { name: 'das-erste', id: '165' },
+            { name: 'euronews', id: '1090' },
+            { name: 'kabel-eins', id: '3' },
+            { name: 'kabel-eins-doku', id: '7' },
+            { name: 'kika', id: '173' },
+            { name: 'prosieben', id: '1' },
+            { name: 'prosiebenmaxx-de', id: '5' },
+            { name: 'rbb', id: '1280' },
+            { name: 'red-bull-tv', id: '1027' },
+            { name: 'sat1', id: '2' },
+            { name: 'sixx', id: '4' },
+            { name: 'tagesschau-24', id: '167' },
+            { name: 'tele-5', id: '1026' },
+            { name: 'tlc', id: '111' },
+            { name: 'welt', id: '113' },
+            { name: 'zdf', id: '123' },
+            { name: 'zdf-info', id: '124' }
+        ];
+
+        let channels = JSON.parse(localStorage.getItem('tvChannels')) || defaultChannels;
         let favorites = JSON.parse(localStorage.getItem('tvFavorites')) || [];
         let currentSort = 'name';
         let searchQuery = '';
+        let editingIndex = -1;
+
+        const directLinkUrl = "https://www.joyn.de/play/live-tv?channel_id=";
+        const channelUrlBase = "https://www.joyn.de/live-tv/";
+
+        function saveChannels() {
+            localStorage.setItem('tvChannels', JSON.stringify(channels));
+        }
+
+        function openAddModal() {
+            editingIndex = -1;
+            document.getElementById('modalTitle').textContent = 'Add Channel';
+            document.getElementById('editForm').reset();
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function openEditModal(index) {
+            editingIndex = index;
+            document.getElementById('modalTitle').textContent = 'Edit Channel';
+            document.getElementById('channelName').value = channels[index].name;
+            document.getElementById('channelId').value = channels[index].id;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingIndex = -1;
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('channelName').value.trim();
+            const id = document.getElementById('channelId').value.trim();
+
+            if (!name || !id) return;
+
+            if (editingIndex === -1) {
+                channels.push({ name, id });
+            } else {
+                channels[editingIndex] = { name, id };
+            }
+
+            saveChannels();
+            closeModal();
+            renderChannels();
+        }
+
+        function deleteChannel(index) {
+            if (confirm('Delete this channel?')) {
+                channels.splice(index, 1);
+                saveChannels();
+                renderChannels();
+            }
+        }
 
         function renderChannels() {
             const grid = document.getElementById('channelsGrid');
             grid.innerHTML = '';
 
-            let filtered = tvchannels.filter(ch =>
+            let filtered = channels.filter(ch =>
                 ch.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
 
@@ -359,12 +585,13 @@ zdf-info;124
                 return;
             }
 
-            sorted.forEach(channel => {
+            sorted.forEach((channel, displayIndex) => {
+                const actualIndex = channels.indexOf(channel);
                 const isFav = favorites.includes(channel.id);
                 const card = document.createElement('div');
                 card.className = 'channel-card';
                 card.innerHTML = `
-                    <div class="channel-name">${channel.name}</div>
+                    <a href="${channelUrlBase}${channel.name}" class="channel-name" target="_blank">${channel.name}</a>
                     <div class="channel-id">ID: ${channel.id}</div>
                     <div class="channel-actions">
                         <button class="fav-btn ${isFav ? 'favorited' : ''}" data-id="${channel.id}">
@@ -372,11 +599,23 @@ zdf-info;124
                         </button>
                         <a href="${directLinkUrl}${channel.id}" class="channel-link" target="_blank">Watch →</a>
                     </div>
+                    <div class="edit-actions">
+                        <button class="edit-btn" data-index="${actualIndex}">✎ Edit</button>
+                        <button class="delete-btn" data-index="${actualIndex}">✕ Delete</button>
+                    </div>
                 `;
 
                 card.querySelector('.fav-btn').addEventListener('click', (e) => {
                     e.preventDefault();
                     toggleFavorite(channel.id);
+                });
+
+                card.querySelector('.edit-btn').addEventListener('click', () => {
+                    openEditModal(actualIndex);
+                });
+
+                card.querySelector('.delete-btn').addEventListener('click', () => {
+                    deleteChannel(actualIndex);
                 });
 
                 grid.appendChild(card);
@@ -415,6 +654,16 @@ zdf-info;124
         document.getElementById('searchInput').addEventListener('input', function(e) {
             searchQuery = e.target.value;
             renderChannels();
+        });
+
+        document.getElementById('addChannelBtn').addEventListener('click', openAddModal);
+        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+        document.getElementById('editForm').addEventListener('submit', handleFormSubmit);
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
         });
 
         function updateSortButtons() {
