@@ -3,126 +3,431 @@
 
 <head>
     <meta charset="utf-8">
-    <title>totally unrelated list</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Channels</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            margin: 10em;
-            background-color: #101010;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 2rem;
+            min-height: 100vh;
         }
 
-        a {
-            color: rgba(227, 179, 5, 0.733);
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
         }
 
-        a:visited {
-            color: #8888ff;
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #e3b305, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        button {
+            background: rgba(227, 179, 5, 0.2);
+            border: 1px solid rgba(227, 179, 5, 0.5);
+            color: #e3b305;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: rgba(227, 179, 5, 0.4);
+            border-color: #e3b305;
+            transform: translateY(-2px);
+        }
+
+        button.active {
+            background: rgba(227, 179, 5, 0.6);
+            border-color: #ffed4e;
+            color: #ffed4e;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(227, 179, 5, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(224, 224, 224, 0.5);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #e3b305;
+            box-shadow: 0 0 10px rgba(227, 179, 5, 0.3);
+        }
+
+        .tag-filter {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag-btn {
+            background: rgba(100, 180, 255, 0.2);
+            border: 1px solid rgba(100, 180, 255, 0.5);
+            color: #64b4ff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .tag-btn:hover {
+            background: rgba(100, 180, 255, 0.3);
+        }
+
+        .tag-btn.active {
+            background: rgba(100, 180, 255, 0.6);
+            border-color: #64b4ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .channel-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(227, 179, 5, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .channel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(227, 179, 5, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .channel-card:hover::before {
+            left: 100%;
+        }
+
+        .channel-card:hover {
+            background: rgba(227, 179, 5, 0.1);
+            border-color: rgba(227, 179, 5, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(227, 179, 5, 0.2);
+        }
+
+        .channel-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: capitalize;
+            color: #ffed4e;
+        }
+
+        .channel-id {
+            color: rgba(224, 224, 224, 0.6);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .channel-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .fav-btn {
+            background: none;
+            border: 1px solid rgba(255, 100, 100, 0.5);
+            color: #ff6464;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .fav-btn:hover {
+            background: rgba(255, 100, 100, 0.1);
+            border-color: #ff6464;
+        }
+
+        .fav-btn.favorited {
+            background: rgba(255, 100, 100, 0.3);
+            color: #ff8080;
+        }
+
+        .channel-link {
+            background: rgba(100, 180, 255, 0.2);
+            border: 1px solid rgba(100, 180, 255, 0.5);
+            color: #64b4ff;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
             text-decoration: none;
+            font-size: 0.85rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: inline-block;
         }
 
-        a:hover,
-        a:active {
-            color: #ffcc00;
+        .channel-link:hover {
+            background: rgba(100, 180, 255, 0.4);
+            border-color: #64b4ff;
         }
 
-        a.no-underline {
+        .nav-links {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a {
+            color: rgba(227, 179, 5, 0.8);
             text-decoration: none;
+            margin: 0 1rem;
+            transition: color 0.3s ease;
         }
 
-        a.direct-link {
-            text-decoration: none;
-            background-color: rgba(227, 179, 5, 0.133);
+        .nav-links a:hover {
+            color: #ffed4e;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: rgba(224, 224, 224, 0.6);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .sort-buttons {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 
 <body>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/">https://www.joyn.de</a> <a class="no-underline" href="../index.html">.. back up</a>
-    </p>
+    <div class="nav-links">
+        <a href="https://www.joyn.de/">» joyn.de</a>
+        <a href="../index.html">« back</a>
+    </div>
 
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/das-erste">das-erste</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=165">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/zdf">zdf</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=123">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/arte">arte</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=1007">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/3sat">live-tv/3sat</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=1006">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/kika">live-tv/kika</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=173">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/ard-alpha">live-tv/ard-alpha</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=169">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/zdf-info">live-tv/zdf-info</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=124">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline"
-            href="https://www.joyn.de/live-tv/tagesschau-24">live-tv/tagesschau-24</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=167">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/sat1">live-tv/sat1</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=2">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/prosieben">live-tv/prosieben</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=1">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/rbb">live-tv/rbb</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=1280">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/kabel-eins">live-tv/kabel-eins</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=3">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/tele-5">live-tv/tele-5</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=1026">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline"
-            href="https://www.joyn.de/live-tv/comedy-central">live-tv/comedy-central</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=130">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/welt">live-tv/welt</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=113">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline"
-            href="https://www.joyn.de/live-tv/deluxe-music">live-tv/deluxe-music</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=127">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline"
-            href="https://www.joyn.de/live-tv/red-bull-tv">live-tv/red-bull-tv</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=1027">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/sixx">live-tv/sixx</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=4">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/dmax">live-tv/dmax</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=110">📺 programm live-tv</a>
-    </p>
-    <p>
-        <a class="no-underline" href="https://www.joyn.de/live-tv/tlc">live-tv/tlc</a>
-        <a class="direct-link" href="https://www.joyn.de/play/live-tv?channel_id=111">📺 programm live-tv</a>
-    </p>
+    <div class="header">
+        <h1>📺 TV Channels</h1>
+    </div>
 
+    <div class="container">
+        <div class="controls">
+            <div class="sort-buttons">
+                <button id="sortName" class="active">Sort by Name</button>
+                <button id="sortId">Sort by ID</button>
+                <button id="sortFav">★ Favorites</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search channels...">
+            </div>
+        </div>
+
+        <div class="channels-grid" id="channelsGrid">
+            <!-- Channels will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const tvchannels = `
+3sat;1006
+arte;1007
+ard-alpha;169
+comedy-central;130
+dmax;110
+deluxe-music;127
+das-erste;165
+euronews;1090
+kabel-eins;3
+kika;173
+prosieben;1
+rbb;1280
+red-bull-tv;1027
+sat1;2
+sixx;4
+tagesschau-24;167
+tele-5;1026
+tlc;111
+welt;113
+zdf;123
+zdf-info;124
+`.trim().split("\n").map(line => {
+            const [name, id] = line.trim().split(";");
+            return { name: name.trim(), id: id.trim() };
+        });
+
+        const directLinkUrl = "https://www.joyn.de/play/live-tv?channel_id=";
+        let favorites = JSON.parse(localStorage.getItem('tvFavorites')) || [];
+        let currentSort = 'name';
+        let searchQuery = '';
+
+        function renderChannels() {
+            const grid = document.getElementById('channelsGrid');
+            grid.innerHTML = '';
+
+            let filtered = tvchannels.filter(ch =>
+                ch.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            let sorted = [...filtered];
+            if (currentSort === 'name') {
+                sorted.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (currentSort === 'id') {
+                sorted.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            } else if (currentSort === 'favorite') {
+                sorted.sort((a, b) => {
+                    const aFav = favorites.includes(a.id);
+                    const bFav = favorites.includes(b.id);
+                    return bFav - aFav;
+                });
+            }
+
+            if (sorted.length === 0) {
+                grid.innerHTML = '<div class="no-results">No channels found</div>';
+                return;
+            }
+
+            sorted.forEach(channel => {
+                const isFav = favorites.includes(channel.id);
+                const card = document.createElement('div');
+                card.className = 'channel-card';
+                card.innerHTML = `
+                    <div class="channel-name">${channel.name}</div>
+                    <div class="channel-id">ID: ${channel.id}</div>
+                    <div class="channel-actions">
+                        <button class="fav-btn ${isFav ? 'favorited' : ''}" data-id="${channel.id}">
+                            ${isFav ? '★ Favorited' : '☆ Add to Favorites'}
+                        </button>
+                        <a href="${directLinkUrl}${channel.id}" class="channel-link" target="_blank">Watch →</a>
+                    </div>
+                `;
+
+                card.querySelector('.fav-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleFavorite(channel.id);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleFavorite(id) {
+            const idx = favorites.indexOf(id);
+            if (idx === -1) {
+                favorites.push(id);
+            } else {
+                favorites.splice(idx, 1);
+            }
+            localStorage.setItem('tvFavorites', JSON.stringify(favorites));
+            renderChannels();
+        }
+
+        document.getElementById('sortName').addEventListener('click', function() {
+            currentSort = 'name';
+            updateSortButtons();
+            renderChannels();
+        });
+
+        document.getElementById('sortId').addEventListener('click', function() {
+            currentSort = 'id';
+            updateSortButtons();
+            renderChannels();
+        });
+
+        document.getElementById('sortFav').addEventListener('click', function() {
+            currentSort = 'favorite';
+            updateSortButtons();
+            renderChannels();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            searchQuery = e.target.value;
+            renderChannels();
+        });
+
+        function updateSortButtons() {
+            document.querySelectorAll('.sort-buttons button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (currentSort === 'name') document.getElementById('sortName').classList.add('active');
+            if (currentSort === 'id') document.getElementById('sortId').classList.add('active');
+            if (currentSort === 'favorite') document.getElementById('sortFav').classList.add('active');
+        }
+
+        renderChannels();
+    </script>
 </body>
+
+</html>
